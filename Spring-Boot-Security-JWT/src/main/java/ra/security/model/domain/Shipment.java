@@ -31,5 +31,5 @@ public class Shipment {
 //    private Orders orders;
 
     @OneToMany(mappedBy = "shipment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Orders> shipments = new ArrayList<>();
+    private List<Orders> orders = new ArrayList<>();
 }

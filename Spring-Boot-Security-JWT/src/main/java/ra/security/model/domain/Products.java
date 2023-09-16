@@ -44,13 +44,16 @@ public class Products {
     private List<OrderDetails> orderDetails;
 
     @ManyToMany
-    private Set<Category> category = new HashSet<>();
+    private List<Category> category = new ArrayList<>();
 
     @ManyToOne
     private Brand brand;
 
-
-
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "product_color"
+            , joinColumns = @JoinColumn(name = "color_id")
+            , inverseJoinColumns = @JoinColumn(name = "products_id"))
+    private List<Color> colors;
 
     private boolean status;
 }

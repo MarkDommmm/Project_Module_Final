@@ -49,7 +49,8 @@ public class AuthController {
         Authentication authentication = null;
         try {
             authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(formSignInDto.getUsername(), formSignInDto.getPassword())
+                    new UsernamePasswordAuthenticationToken(
+                            formSignInDto.getUsername(), formSignInDto.getPassword())
             ); // tạo đối tương authentiction để xác thực thông qua username va password
             // tạo token và trả về cho người dùng
         } catch (AuthenticationException e) {
@@ -71,7 +72,7 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     private ResponseEntity<String> signup(@Valid @RequestBody FormSignUpDto formSignUpDto) {
-//        mailService.sendMail(formSignUpDto.getMail(), "Resgister", "GIANG GA");
+        mailService.sendMail(formSignUpDto.getEmail(), "Resgister", "Welcome to HH STORE");
         userService.save(formSignUpDto);
         return new ResponseEntity("success", HttpStatus.CREATED);
     }

@@ -1,6 +1,12 @@
 package ra.security.config;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,10 +29,24 @@ import ra.security.security.user_principle.UserDetailService;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true) // phân quyền trực tiếp trên controller
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Value("${cloud.aws.credentials.access-key}")
+    private String accessKey;
+
+    @Value("${cloud.aws.credentials.secret-key}")
+    private String accessSecret;
+    @Value("${cloud.aws.region.static}")
+    private String region;
     @Autowired
     private UserDetailService userDetailService;
     @Autowired
     private JwtEntryPoint jwtEntryPoint;
+    @Bean
+    public AmazonS3 s3Client() {
+        AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
+        return AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withRegion(region).build();
+    }
     @Bean
     public JwtTokenFilter jwtTokenFilter(){
         return new JwtTokenFilter();
@@ -52,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // cáu hình phân qyền đường dẫn
         http.cors().and().csrf().disable() // tắt cáu hình csrf
                 .authorizeRequests()
-                .antMatchers("/api/v4/auth/**").permitAll()
+                .antMatchers("/api/v4/**").permitAll()
 //                .antMatchers("/api/v4/test/**").hasRole("ADMIN") // cau hinh theo pattern
                 .anyRequest().authenticated() // các đường dân khác phả được xác thực
                 .and()

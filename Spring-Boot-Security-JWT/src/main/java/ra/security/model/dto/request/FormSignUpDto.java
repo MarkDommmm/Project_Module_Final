@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -14,8 +15,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FormSignUpDto {
+    @NotEmpty
 
-    //    private String mail;
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Email invalidate")
+    private String email;
+
     @NotEmpty
     @Size(min = 6, message = "Username minimum 6 characters")
     private String username;

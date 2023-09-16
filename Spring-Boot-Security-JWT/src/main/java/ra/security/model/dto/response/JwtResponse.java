@@ -21,7 +21,7 @@ public class JwtResponse {
     private String type = "Bearer";
     private String name;
     private String username;
-
+     private String email;
     private boolean status;
 
     private List<String> roles = new ArrayList<>();

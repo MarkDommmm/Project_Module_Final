@@ -1,24 +1,26 @@
-package ra.security.model.domain;
+package ra.security.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ra.security.model.domain.Products;
 
 import javax.persistence.*;
 
-@Entity
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Brand {
+public class ColorResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
-
     private String name;
+
+    @ManyToOne
+    private Products products;
 
 //    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "category")
 //    private Set<Products> products = new HashSet<>();

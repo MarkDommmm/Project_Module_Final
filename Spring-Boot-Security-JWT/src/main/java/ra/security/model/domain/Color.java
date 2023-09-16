@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -18,8 +19,7 @@ public class Color {
     private Long id;
     private String name;
 
-    @ManyToOne
-    private Products products;
+
 
 //    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "category")
 //    private Set<Products> products = new HashSet<>();
