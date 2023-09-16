@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ra.security.model.domain.Products;
+import ra.security.model.domain.Product;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -20,6 +20,6 @@ public class CategoryRequest {
     private String name;
 
 
-    private Set<Products> products = new HashSet<>();
+    private Set<Product> products = new HashSet<>();
 
 }

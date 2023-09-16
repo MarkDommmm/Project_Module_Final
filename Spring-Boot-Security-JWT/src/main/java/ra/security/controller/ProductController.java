@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ra.security.model.domain.Products;
+import ra.security.model.domain.Product;
 import ra.security.model.dto.request.ProductRequest;
 import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IProductRepository;
@@ -14,41 +14,33 @@ import ra.security.security.jwt.JwtProvider;
 import ra.security.service.IUserService;
 import ra.security.service.impl.ProductService;
 import ra.security.service.mapper.ProductMapper;
+import ra.security.service.upload_aws.StorageService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v4/products")
+@CrossOrigin("*")
 public class ProductController {
 
     @Autowired
     private ProductService productService;
     @Autowired
-    private ProductMapper productMapper;
+    private StorageService service;
 
-    @GetMapping("/")
+    @GetMapping("/getAll")
     public ResponseEntity<List<ProductResponse>> getProducts() {
         return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
+    }
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadFile(@RequestParam(value = "file") MultipartFile file) {
+        return new ResponseEntity<>(service.uploadFile(file), HttpStatus.OK);
     }
 
     @PostMapping("/add")
     private ResponseEntity<ProductResponse> addProduct(
-            @RequestParam(value = "file") MultipartFile file,
-            @RequestBody ProductRequest productRequest) {
-//
-//        // Xử lý tệp (file) và lưu trữ nó, ví dụ, sử dụng một phương thức tách riêng
-//        String imageUrl = productMapper.uploadFile(file);
-//
-//        // Gán URL của tệp vào trường image của productRequest
-//        productRequest.setImage(imageUrl);
-//
-//        // Gọi productService để lưu sản phẩm
-        ProductResponse response = productService.save(productRequest);
-
-
-
-        // Trả về kết quả
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+            @ModelAttribute ProductRequest productRequest) {
+        return new ResponseEntity<>(productService.save(productRequest), HttpStatus.CREATED);
     }
 
 

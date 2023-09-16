@@ -5,10 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ra.security.model.domain.Brand;
-import ra.security.model.domain.Category;
-import ra.security.model.domain.Color;
-import ra.security.model.domain.OrderDetails;
+import ra.security.model.domain.*;
 
 import java.util.*;
 
@@ -30,7 +27,8 @@ public class ProductResponse {
 
     private String description;
 
-    private String image;
+    private String main_image;
+    private List<String> images;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;

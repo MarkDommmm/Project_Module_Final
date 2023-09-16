@@ -22,14 +22,13 @@ public class Discount {
     private Long id;
     private String name;
     private String description;
-    private double discount_percent;
+    private int stock;
+    private int promotion;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date created_at;
+    private Date startDate;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date modified_at;
+    private Date endDate;
 
-//    @OneToMany(mappedBy = "discount", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<Users> users = new ArrayList<>();
-
-
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY,mappedBy = "discount")
+    private List<Orders> orders = new ArrayList<>();
 }

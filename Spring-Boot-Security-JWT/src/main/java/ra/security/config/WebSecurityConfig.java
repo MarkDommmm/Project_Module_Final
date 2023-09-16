@@ -29,24 +29,12 @@ import ra.security.security.user_principle.UserDetailService;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true) // phân quyền trực tiếp trên controller
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Value("${cloud.aws.credentials.access-key}")
-    private String accessKey;
 
-    @Value("${cloud.aws.credentials.secret-key}")
-    private String accessSecret;
-    @Value("${cloud.aws.region.static}")
-    private String region;
     @Autowired
     private UserDetailService userDetailService;
     @Autowired
     private JwtEntryPoint jwtEntryPoint;
-    @Bean
-    public AmazonS3 s3Client() {
-        AWSCredentials credentials = new BasicAWSCredentials(accessKey, accessSecret);
-        return AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(region).build();
-    }
+
     @Bean
     public JwtTokenFilter jwtTokenFilter(){
         return new JwtTokenFilter();

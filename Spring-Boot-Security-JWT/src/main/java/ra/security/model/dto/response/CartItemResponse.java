@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ra.security.model.domain.Products;
+import ra.security.model.domain.Orders;
+import ra.security.model.domain.Product;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,13 +15,12 @@ public class CartItemResponse {
 
     private Long idCart;
 
-    private Long idOrder;
-
-    private Products product;
+    private Product product;
 
     private int quantity;
 
-    private float price;
+    private double price;
+    private  boolean status = true;
 
 
 }

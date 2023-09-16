@@ -22,13 +22,13 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     private Payment payment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Discount discount;
+
 
     private double total_price;
 
-    //    @OneToMany(mappedBy = "orders", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<Shipment> shipments = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private EDelivered eDelivered;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Shipment shipment;
@@ -38,4 +38,7 @@ public class Orders {
 
     private boolean status;
 
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
 }

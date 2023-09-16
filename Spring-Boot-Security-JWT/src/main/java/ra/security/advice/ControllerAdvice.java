@@ -6,6 +6,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ra.security.exception.*;
 
 import javax.persistence.EntityExistsException;
 import java.util.HashMap;
@@ -39,4 +40,51 @@ public class ControllerAdvice {
         );
         return new ResponseEntity<>(err, HttpStatus.FORBIDDEN);
     }
+
+//    @ExceptionHandler(UserException.class)
+//    public String handleExceptionUser(UserException e) {
+//        return "Exception user --> " + e.getMessage();
+//    }
+//
+//    @ExceptionHandler(RoleException.class)
+//    public String handleExceptionRole(RoleException e) {
+//        return "Exception role --> " + e.getMessage();
+//    }
+
+
+    @ExceptionHandler(CategoryException.class)
+    public String handleExceptionCategory(CategoryException e) {
+        return "Exception category --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(BrandException.class)
+    public String handleExceptionBrand(BrandException e) {
+        return "Exception brand --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(DiscountException.class)
+    public String handleExceptionCoupon(DiscountException e) {
+        return "Exception coupon --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(OrderException.class)
+    public String handleExceptionOrder(OrderException e) {
+        return "Exception order --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(CartItemException.class)
+    public String handleExceptionCartItem(CartItemException e) {
+        return "Exception cartItem --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(ProductException.class)
+    public String handleExceptionProduct(ProductException e) {
+        return "Exception product --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(ImageProductException.class)
+    public String handleExceptionImage(ImageProductException e) {
+        return "Exception image --> " + e.getMessage();
+    }
+
 }

@@ -23,7 +23,7 @@ public class ProductRequest {
 
     private String description;
 
-    private MultipartFile image;
+    private List<MultipartFile> file;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ra.security.model.domain.Products;
+import ra.security.model.domain.Product;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +23,6 @@ public class CategoryResponse {
     private String name;
 
 
-    private Set<Products> products = new HashSet<>();
+    private Set<Product> products = new HashSet<>();
 
 }

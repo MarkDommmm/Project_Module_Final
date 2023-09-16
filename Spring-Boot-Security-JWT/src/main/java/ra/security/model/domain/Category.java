@@ -26,6 +26,6 @@ public class Category {
     private String name;
 
     @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "category")
-    private Set<Products> products = new HashSet<>();
+    private Set<Product> products = new HashSet<>();
 
 }

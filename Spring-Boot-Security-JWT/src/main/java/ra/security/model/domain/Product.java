@@ -14,7 +14,7 @@ import java.util.*;
 @NoArgsConstructor
 @Data
 @Builder
-public class Products {
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,11 @@ public class Products {
 
     private String description;
 
-    private String image;
+
+    private String main_image;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product")
+    private List<ImageProduct> images;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;
@@ -52,7 +56,7 @@ public class Products {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "product_color"
             , joinColumns = @JoinColumn(name = "color_id")
-            , inverseJoinColumns = @JoinColumn(name = "products_id"))
+            , inverseJoinColumns = @JoinColumn(name = "product_id"))
     private List<Color> colors;
 
     private boolean status;

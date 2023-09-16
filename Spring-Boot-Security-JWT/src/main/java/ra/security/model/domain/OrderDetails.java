@@ -25,7 +25,7 @@ public class OrderDetails {
     private Orders orders;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Products products;
+    private Product products;
 
     private int quantity;
 
