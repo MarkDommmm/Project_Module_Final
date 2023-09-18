@@ -15,7 +15,7 @@ public class CartItemResponse {
 
     private Long idCart;
 
-    private Product product;
+    private ProductResponse product;
 
     private int quantity;
 

@@ -1,14 +1,21 @@
 package ra.security.service.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ra.security.model.domain.EDelivered;
 import ra.security.model.domain.Orders;
+import ra.security.model.domain.Users;
 import ra.security.model.dto.request.OrdersRequest;
 import ra.security.model.dto.response.OrdersResponse;
+import ra.security.repository.IUserRepository;
 import ra.security.service.IGenericMapper;
+
+import java.util.Optional;
 
 @Component
 public class OrderMapper implements IGenericMapper<Orders, OrdersRequest, OrdersResponse> {
+    @Autowired
+    private IUserRepository userRepository;
     @Override
     public Orders toEntity(OrdersRequest ordersRequest) {
         return Orders.builder()
@@ -30,6 +37,8 @@ public class OrderMapper implements IGenericMapper<Orders, OrdersRequest, Orders
                 .total_price(orders.getTotal_price())
                 .shipment(orders.getShipment())
                 .order_at(orders.getOrder_at())
+                .eDelivered(String.valueOf(orders.getEDelivered()))
+                .users(orders.getUsers().getId())
                 .status(orders.isStatus()).build();
     }
 

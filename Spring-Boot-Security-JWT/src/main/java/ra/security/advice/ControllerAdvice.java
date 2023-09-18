@@ -41,16 +41,20 @@ public class ControllerAdvice {
         return new ResponseEntity<>(err, HttpStatus.FORBIDDEN);
     }
 
-//    @ExceptionHandler(UserException.class)
-//    public String handleExceptionUser(UserException e) {
-//        return "Exception user --> " + e.getMessage();
-//    }
-//
+    @ExceptionHandler(UserException.class)
+    public String handleExceptionUser(UserException e) {
+        return "Exception user --> " + e.getMessage();
+    }
+
+    //
 //    @ExceptionHandler(RoleException.class)
 //    public String handleExceptionRole(RoleException e) {
 //        return "Exception role --> " + e.getMessage();
 //    }
-
+    @ExceptionHandler(OrderDetailException.class)
+    public String handleExceptionOrderDetail(OrderDetailException e) {
+        return "Exception user --> " + e.getMessage();
+    }
 
     @ExceptionHandler(CategoryException.class)
     public String handleExceptionCategory(CategoryException e) {

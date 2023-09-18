@@ -5,12 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ra.security.model.domain.Discount;
-import ra.security.model.domain.Payment;
-import ra.security.model.domain.Shipment;
+import ra.security.model.domain.*;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 
 @AllArgsConstructor
@@ -28,9 +28,10 @@ public class OrdersResponse {
     private double total_price;
 
     private Shipment shipment;
-
+    private Long users;
     private Date order_at;
 
     private boolean status;
+
 
 }

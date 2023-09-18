@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import ra.security.model.domain.Discount;
 import ra.security.model.domain.Payment;
 import ra.security.model.domain.Shipment;
+import ra.security.model.domain.Users;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -28,7 +29,7 @@ public class OrdersRequest {
     private String eDelivered;
 
     private Shipment shipment;
-
+    private Users users;
     private Date order_at;
 
     private boolean status;

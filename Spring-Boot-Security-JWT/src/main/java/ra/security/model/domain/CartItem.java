@@ -4,9 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ra.security.model.dto.response.ProductResponse;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,7 +15,7 @@ public class CartItem {
 
     private Orders orders;
 
-    private  ProductResponse product;
+    private  Product product;
 
     private int quantity;
 

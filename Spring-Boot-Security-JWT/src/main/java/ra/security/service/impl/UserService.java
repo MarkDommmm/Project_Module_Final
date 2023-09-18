@@ -3,10 +3,12 @@ package ra.security.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ra.security.model.domain.Product;
 import ra.security.model.domain.Role;
 import ra.security.model.domain.RoleName;
 import ra.security.model.domain.Users;
 import ra.security.model.dto.request.FormSignUpDto;
+import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IUserRepository;
 import ra.security.service.IRoleService;
 import ra.security.service.IUserService;
@@ -67,6 +69,7 @@ public class UserService implements IUserService {
 
         return userRepository.save(users);
     }
+
 
 
 }

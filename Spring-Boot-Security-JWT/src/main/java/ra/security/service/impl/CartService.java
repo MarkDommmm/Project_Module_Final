@@ -5,53 +5,70 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ra.security.exception.CartItemException;
 import ra.security.model.domain.CartItem;
+import ra.security.model.domain.Product;
+import ra.security.model.dto.response.CartItemResponse;
 import ra.security.model.dto.response.ProductResponse;
+import ra.security.repository.IProductRepository;
+import ra.security.service.mapper.CartMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CartService {
     @Autowired
     private ProductService productService;
+    @Autowired
+    private IProductRepository productRepository;
+    @Autowired
+    private CartMapper cartMapper;
 
     private List<CartItem> cartItemList = new ArrayList<>();
 
-    public List<CartItem> findAll() {
-        return cartItemList;
+    public List<CartItemResponse> findAll() {
+        return cartItemList.stream()
+                .map(c -> cartMapper.toResponse(c)).collect(Collectors.toList());
     }
 
     public void save(CartItem cartItem) throws CartItemException {
-        if (findById(cartItem.getIdCart()) == null) {
+        CartItemResponse existingCartItem = findById(cartItem.getIdCart());
+        if (existingCartItem == null) {
             cartItemList.add(cartItem);
         } else {
-            cartItemList.set(cartItemList.indexOf(findById(cartItem.getIdCart())), cartItem);
+            int index = cartItemList.indexOf(existingCartItem);
+            if (index != -1) {
+                cartItemList.set(index, cartItem);
+            }
         }
     }
+
 
     public CartItem addCart(Long idProduct) throws CartItemException {
-        ProductResponse p = productService.findById(idProduct);
-        if (p == null) {
-            throw new CartItemException("Product not found");
-        }
-        CartItem cartItem = findByIdProduct(idProduct);
-        CartItem c = new CartItem();
-        if (cartItem == null) {
-            c.setIdCart(getNewId());
-            c.setProduct(p);
-            c.setPrice(p.getPrice());
-            c.setQuantity(1);
-            save(c);
+        Optional<Product> p = productRepository.findById(idProduct);
+        if (p.isPresent()) {
+            CartItem cartItem = findByIdProduct(idProduct);
+            CartItem c = new CartItem();
+            if (cartItem == null) {
+                c.setIdCart(getNewId());
+                c.setProduct(p.get());
+                c.setPrice(p.get().getPrice());
+                c.setQuantity(1);
+                save(c);
 
-        } else {
-            cartItem.setQuantity(cartItem.getQuantity() + 1);
-            save(cartItem);
+            } else {
+                cartItem.setQuantity(cartItem.getQuantity() + 1);
+                save(cartItem);
+            }
+            return c;
         }
-        return c;
+        throw new CartItemException("Product not found");
+
     }
 
-    public CartItem findById(Long id) {
-        for (CartItem c : findAll()) {
+    public CartItemResponse findById(Long id) {
+        for (CartItemResponse c : findAll()) {
             if (c.getIdCart().equals(id)) {
                 return c;
             }
