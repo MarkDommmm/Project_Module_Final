@@ -12,7 +12,7 @@ import ra.security.service.impl.ColorService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v4/colors")
+@RequestMapping("/api/v4/auth/colors")
 @CrossOrigin("*")
 public class ColorController {
     @Autowired

@@ -21,6 +21,7 @@ import ra.security.service.IUserService;
 import ra.security.service.impl.MailService;
 
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -45,14 +46,17 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtResponse> signin(@RequestBody FormSignInDto formSignInDto) throws LoginException {
+    public ResponseEntity<JwtResponse> signin(@RequestBody FormSignInDto formSignInDto, HttpSession session) throws LoginException {
         Authentication authentication = null;
+
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             formSignInDto.getUsername(), formSignInDto.getPassword())
             ); // tạo đối tương authentiction để xác thực thông qua username va password
             // tạo token và trả về cho người dùng
+
+            session.setAttribute("CurrentUser", authentication);
         } catch (AuthenticationException e) {
             throw new LoginException("Username or password is incorrect");
         }

@@ -3,6 +3,7 @@ package ra.security.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ra.security.exception.CartItemException;
 
@@ -10,6 +11,7 @@ import ra.security.service.impl.CartService;
 import ra.security.service.impl.ProductService;
 
 import javax.servlet.http.HttpSession;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v4/cart")
@@ -20,6 +22,17 @@ public class CartItemController {
 
     @Autowired
     private ProductService productService;
+
+    @GetMapping
+    private ResponseEntity<?> validate(HttpSession session) {
+        Authentication check = (Authentication) session.getAttribute("CurrentUser");
+
+        if (check == null) {
+            return new ResponseEntity<>("Login please", HttpStatus.UNAUTHORIZED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+    }
 
     @GetMapping("/getAll")
     public ResponseEntity<?> getCart() {

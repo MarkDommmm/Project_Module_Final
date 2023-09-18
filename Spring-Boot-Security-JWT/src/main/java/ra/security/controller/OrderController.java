@@ -14,7 +14,7 @@ import ra.security.service.impl.OrderService;
 import javax.servlet.http.HttpSession;
 
 @RestController
-@RequestMapping("/api/v4/order")
+@RequestMapping("/api/v4/auth/order")
 @CrossOrigin("*")
 public class OrderController {
     @Autowired

@@ -19,7 +19,7 @@ import ra.security.service.upload_aws.StorageService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v4/products")
+@RequestMapping("/api/v4/auth/products")
 @CrossOrigin("*")
 public class ProductController {
 
@@ -32,10 +32,7 @@ public class ProductController {
     public ResponseEntity<List<ProductResponse>> getProducts() {
         return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
     }
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam(value = "file") MultipartFile file) {
-        return new ResponseEntity<>(service.uploadFile(file), HttpStatus.OK);
-    }
+
 
     @PostMapping("/add")
     private ResponseEntity<ProductResponse> addProduct(
