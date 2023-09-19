@@ -3,11 +3,10 @@ package ra.security.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
-import ra.security.exception.CartItemException;
+import ra.security.exception.CustomException;
 import ra.security.model.domain.CartItem;
 import ra.security.model.domain.Product;
 import ra.security.model.dto.response.CartItemResponse;
-import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IProductRepository;
 import ra.security.service.mapper.CartMapper;
 
@@ -26,13 +25,21 @@ public class CartService {
     private CartMapper cartMapper;
 
     private List<CartItem> cartItemList = new ArrayList<>();
-
+    public void clearCartList() {
+        cartItemList = new ArrayList<>();
+    }
     public List<CartItemResponse> findAll() {
         return cartItemList.stream()
-                .map(c -> cartMapper.toResponse(c)).collect(Collectors.toList());
+                .map(c -> {
+                    try {
+                        return cartMapper.toResponse(c);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.toList());
     }
 
-    public void save(CartItem cartItem) throws CartItemException {
+    public void save(CartItem cartItem) throws CustomException {
         CartItemResponse existingCartItem = findById(cartItem.getIdCart());
         if (existingCartItem == null) {
             cartItemList.add(cartItem);
@@ -45,7 +52,7 @@ public class CartService {
     }
 
 
-    public CartItem addCart(Long idProduct) throws CartItemException {
+    public CartItem addCart(Long idProduct) throws CustomException {
         Optional<Product> p = productRepository.findById(idProduct);
         if (p.isPresent()) {
             CartItem cartItem = findByIdProduct(idProduct);
@@ -63,7 +70,7 @@ public class CartService {
             }
             return c;
         }
-        throw new CartItemException("Product not found");
+        throw new CustomException("Product not found");
 
     }
 
@@ -95,7 +102,7 @@ public class CartService {
         return idmax + 1;
     }
 
-    public void deleteById(Long id) throws CartItemException {
+    public void deleteById(Long id) throws CustomException {
         CartItem cartItem = findByIdProduct(id);
         if (cartItem != null) {
             cartItem.setQuantity(cartItem.getQuantity() - 1);
@@ -106,7 +113,7 @@ public class CartService {
                 save(cartItem); // Chỉ lưu lại nếu quantity > 0
             }
         } else {
-            throw new CartItemException("CartItem not found");
+            throw new CustomException("CartItem not found");
         }
     }
 

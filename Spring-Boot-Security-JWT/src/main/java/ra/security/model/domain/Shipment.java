@@ -1,5 +1,6 @@
 package ra.security.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,13 +29,13 @@ public class Shipment {
     private String email;
 
     private Date create_at;
-
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Users user;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
+    //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Orders orders;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "shipment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Orders> orders = new ArrayList<>();
 }

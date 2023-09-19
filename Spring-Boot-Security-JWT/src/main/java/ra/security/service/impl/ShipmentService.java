@@ -2,22 +2,19 @@ package ra.security.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ra.security.advice.LoginException;
+import ra.security.exception.LoginException;
 import ra.security.exception.*;
 import ra.security.model.domain.Shipment;
 import ra.security.model.domain.Users;
 import ra.security.model.dto.request.ShipmentRequest;
 import ra.security.model.dto.response.ShipmentResponse;
 import ra.security.repository.IShipmentRepository;
-import ra.security.repository.IUserRepository;
 import ra.security.service.IGenericService;
 import ra.security.service.IUserService;
 import ra.security.service.mapper.ShipmentMapper;
 
-import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,7 +33,7 @@ public class ShipmentService implements IGenericService<ShipmentResponse, Shipme
                 .map(c -> shipmentMapper.toResponse(c)).collect(Collectors.toList());
     }
 
-    public List<ShipmentResponse> findShipmentsByUser(Object username) throws ShipmentException {
+    public List<ShipmentResponse> findShipmentsByUser(Object username) throws CustomException {
         List<Shipment> shipments = shipmentRepository.findAll();
         List<ShipmentResponse> userShipments = new ArrayList<>();
         boolean userHasShipments = false;
@@ -44,37 +41,36 @@ public class ShipmentService implements IGenericService<ShipmentResponse, Shipme
         for (Shipment s : shipments) {
             if (s.getUser().getUsername().equals(username)) {
                 userShipments.add(shipmentMapper.toResponse(s));
-                userHasShipments = true; // Đánh dấu rằng người dùng có ít nhất một lô hàng
+                userHasShipments = true;
             }
         }
 
         if (!userHasShipments) {
-            throw new ShipmentException("User doesn't have any shipments");
+            throw new CustomException("User doesn't have any shipments");
         }
 
         return userShipments;
     }
 
 
-
     @Override
-    public ShipmentResponse findById(Long aLong) throws CategoryException, ColorException, OrderException, DiscountException, OrderDetailException, ShipmentException {
+    public ShipmentResponse findById(Long aLong) throws  CustomException {
         Optional<Shipment> shipment = shipmentRepository.findById(aLong);
         return shipment.map(c -> shipmentMapper.toResponse(c)).orElseThrow(() ->
-                new ShipmentException("Shipment not found"));
+                new CustomException("Shipment not found"));
     }
 
     @Override
-    public ShipmentResponse save(ShipmentRequest shipmentRequest) throws CategoryException, BrandException, ColorException, DiscountException, ShipmentException {
+    public ShipmentResponse save(ShipmentRequest shipmentRequest) throws CustomException {
         if (shipmentRepository.existsByAddress(shipmentRequest.getAddress())) {
-            throw new ShipmentException("Shipment already exists");
+            throw new CustomException("Shipment already exists");
         }
         return shipmentMapper.toResponse(shipmentRepository.save(shipmentMapper.toEntity(shipmentRequest)));
     }
 
-    public ShipmentResponse add(ShipmentRequest shipmentRequest, Object users) throws CategoryException, BrandException, ColorException, DiscountException, ShipmentException, LoginException {
+    public ShipmentResponse add(ShipmentRequest shipmentRequest, Object users) throws CustomException, LoginException {
         if (shipmentRepository.existsByAddress(shipmentRequest.getAddress())) {
-            throw new ShipmentException("Shipment already exists");
+            throw new CustomException("Shipment already exists");
         }
         if (users == null) {
             throw new LoginException("Please login!!!");
@@ -100,13 +96,22 @@ public class ShipmentService implements IGenericService<ShipmentResponse, Shipme
         return shipmentMapper.toResponse(shipmentRepository.save(shipment));
     }
 
+    public ShipmentResponse update(ShipmentRequest shipmentRequest, Long id, Object user) {
+        Optional<Users> users = userService.findByUserName(String.valueOf(user));
+        Shipment shipment = shipmentMapper.toEntity(shipmentRequest);
+        shipment.setId(id);
+        shipment.setUser(users.get());
+        return shipmentMapper.toResponse(shipmentRepository.save(shipment));
+    }
+
     @Override
-    public ShipmentResponse delete(Long aLong) {
+    public ShipmentResponse delete(Long aLong) throws CustomException {
         Optional<Shipment> shipment = shipmentRepository.findById(aLong);
         if (shipment.isPresent()) {
             shipmentRepository.deleteById(aLong);
             return shipmentMapper.toResponse(shipment.get());
         }
-        return null;
+        throw new CustomException("Shipment not found");
+
     }
 }

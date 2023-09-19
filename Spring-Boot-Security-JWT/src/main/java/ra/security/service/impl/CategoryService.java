@@ -2,7 +2,7 @@ package ra.security.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ra.security.exception.CategoryException;
+import ra.security.exception.CustomException;
 import ra.security.model.domain.Category;
 import ra.security.model.dto.request.CategoryRequest;
 import ra.security.model.dto.response.CategoryResponse;
@@ -28,16 +28,16 @@ public class CategoryService implements IGenericService<CategoryResponse, Catego
     }
 
     @Override
-    public CategoryResponse findById(Long aLong) throws CategoryException {
+    public CategoryResponse findById(Long aLong) throws CustomException {
         Optional<Category> c = categoryRepository.findById(aLong);
         return c.map(item -> categoryMapper.toResponse(item)).orElseThrow(() ->
-                new CategoryException("Category not found"));
+                new CustomException("Category not found"));
     }
 
     @Override
-    public CategoryResponse save(CategoryRequest categoryRequest) throws CategoryException {
+    public CategoryResponse save(CategoryRequest categoryRequest) throws CustomException {
         if (categoryRepository.existsByName(categoryRequest.getName())) {
-            throw new CategoryException("Category  already exists");
+            throw new CustomException("Category  already exists");
         }
         return categoryMapper.toResponse(categoryRepository.save(categoryMapper.toEntity(categoryRequest)));
     }
@@ -58,8 +58,8 @@ public class CategoryService implements IGenericService<CategoryResponse, Catego
         }
         return null;
     }
-    public Category findCategoryById(Long id) throws CategoryException {
+    public Category findCategoryById(Long id) throws CustomException {
         Optional<Category> optionalCategory = categoryRepository.findById(id);
-        return optionalCategory.orElseThrow(() -> new CategoryException("not found category"));
+        return optionalCategory.orElseThrow(() -> new CustomException("not found category"));
     }
 }

@@ -2,9 +2,7 @@ package ra.security.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ra.security.exception.CategoryException;
-import ra.security.exception.ColorException;
-import ra.security.model.domain.Brand;
+import ra.security.exception.CustomException;
 import ra.security.model.domain.Color;
 import ra.security.model.dto.request.ColorRequest;
 import ra.security.model.dto.response.ColorResponse;
@@ -31,38 +29,44 @@ public class ColorService implements IGenericService<ColorResponse, ColorRequest
     }
 
     @Override
-    public ColorResponse findById(Long aLong) throws ColorException {
+    public ColorResponse findById(Long aLong) throws CustomException {
         Optional<Color> color = colorRepository.findById(aLong);
         return color.map(c -> colorMapper.toResponse(c)).orElseThrow(() ->
-                new ColorException("Color not found"));
+                new CustomException("Color not found"));
     }
 
     @Override
-    public ColorResponse save(ColorRequest colorRequest) throws ColorException {
+    public ColorResponse save(ColorRequest colorRequest) throws CustomException {
         if (colorRepository.existsByName(colorRequest.getName())) {
-            throw new ColorException("Color already exists");
+            throw new CustomException("Color already exists");
         }
         return colorMapper.toResponse(colorRepository.save(colorMapper.toEntity(colorRequest)));
     }
 
     @Override
-    public ColorResponse update(ColorRequest colorRequest, Long id) {
-        Color color = colorMapper.toEntity(colorRequest);
-        color.setId(id);
-        return colorMapper.toResponse(colorRepository.save(color));
+    public ColorResponse update(ColorRequest colorRequest, Long id) throws CustomException {
+        Optional<Color> check = colorRepository.findById(id);
+        if (check.isPresent()) {
+            Color color = colorMapper.toEntity(colorRequest);
+            color.setId(id);
+            return colorMapper.toResponse(colorRepository.save(color));
+        }
+        throw new CustomException("Color not found");
+
     }
 
     @Override
     public ColorResponse delete(Long aLong) {
         Optional<Color> color = colorRepository.findById(aLong);
-        if (color.isPresent()){
+        if (color.isPresent()) {
             colorRepository.deleteById(aLong);
             return colorMapper.toResponse(color.get());
         }
         return null;
     }
-    public Color findColorById(Long id) throws CategoryException {
+
+    public Color findColorById(Long id) throws CustomException {
         Optional<Color> color = colorRepository.findById(id);
-        return color.orElseThrow(() -> new CategoryException("Color not found"));
+        return color.orElseThrow(() -> new CustomException("Color not found"));
     }
 }

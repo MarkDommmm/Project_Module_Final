@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ra.security.exception.BrandException;
-import ra.security.exception.ColorException;
+import ra.security.exception.CustomException;
 import ra.security.model.dto.request.BrandRequest;
 import ra.security.model.dto.response.BrandResponse;
 import ra.security.service.impl.BrandService;
@@ -26,22 +25,27 @@ public class BrandController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<BrandResponse> addBrand(@RequestBody BrandRequest brandRequest) throws  BrandException {
+    public ResponseEntity<BrandResponse> addBrand(@RequestBody BrandRequest brandRequest) throws CustomException {
         return new ResponseEntity<>(brandService.save(brandRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<BrandResponse> getBrand(@PathVariable Long id)     {
-        return new ResponseEntity<>(brandService.findById(id), HttpStatus.OK);
+    public ResponseEntity<?> getBrand(@PathVariable Long id) throws CustomException {
+        try {
+            return new ResponseEntity<>(brandService.findById(id), HttpStatus.OK);
+        } catch (CustomException e) {
+            return new ResponseEntity<>("Brand not found", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<BrandResponse> updateBrand(@PathVariable Long id, @RequestBody BrandRequest brandRequest) {
+    public ResponseEntity<BrandResponse> updateBrand(@PathVariable Long id, @RequestBody BrandRequest brandRequest) throws CustomException {
         return new ResponseEntity<>(brandService.update(brandRequest, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<BrandResponse> deleteBrand(@PathVariable Long id) {
+    public ResponseEntity<?> deleteBrand(@PathVariable Long id) throws  CustomException {
         return new ResponseEntity<>(brandService.delete(id), HttpStatus.OK);
+
     }
 }

@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 
 @AllArgsConstructor
@@ -18,7 +20,8 @@ import javax.persistence.Id;
 public class BrandRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
+    @NotBlank(message = "Product name cannot be blank")
+    @NotEmpty(message = "Product name cannot be empty!!!")
     private String name;
 
 

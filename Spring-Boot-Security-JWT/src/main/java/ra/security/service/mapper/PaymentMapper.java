@@ -13,9 +13,7 @@ public class PaymentMapper implements IGenericMapper<Payment, PaymentRequest, Pa
     @Override
     public Payment toEntity(PaymentRequest paymentRequest) {
         return Payment.builder()
-
                 .created_at(new Date())
-
                 .provider(paymentRequest.getProvider())
                 .orders(paymentRequest.getOrders())
                 .status(paymentRequest.isStatus())
@@ -26,11 +24,8 @@ public class PaymentMapper implements IGenericMapper<Payment, PaymentRequest, Pa
     public PaymentResponse toResponse(Payment payment) {
         return PaymentResponse.builder()
                 .id(payment.getId())
-
                 .created_at(new Date())
-
                 .provider(payment.getProvider())
-                .orders(payment.getOrders())
                 .status(payment.isStatus())
                 .build();
     }

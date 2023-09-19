@@ -33,5 +33,4 @@ public class OrdersResponse {
 
     private boolean status;
 
-
 }

@@ -8,9 +8,12 @@ import ra.security.exception.*;
 import ra.security.model.domain.EDelivered;
 import ra.security.model.dto.request.OrdersRequest;
 import ra.security.model.dto.response.OrdersResponse;
+import ra.security.service.IUserService;
 import ra.security.service.impl.CartService;
 import ra.security.service.impl.OrderService;
 
+import javax.servlet.http.HttpSession;
+import java.util.List;
 
 
 @RestController
@@ -22,20 +25,22 @@ public class OrderController {
     @Autowired
     private CartService cartService;
 
-    @PostMapping("/buy/{userId}/shipment/{shipmentId}/payment/{paymentId}")
-    public ResponseEntity<OrdersResponse> order(@PathVariable Long userId,
+    @PostMapping("/buy/shipment/{shipmentId}/payment/{paymentId}")
+    public ResponseEntity<OrdersResponse> order(HttpSession session,
                                                 @PathVariable Long paymentId,
                                                 @PathVariable Long shipmentId)
-            throws UserException, ProductException, OrderException, ColorException, CategoryException, OrderDetailException, DiscountException, ShipmentException, CartItemException, PaymentException {
-        return new ResponseEntity<>(orderService.order(userId,shipmentId,paymentId), HttpStatus.OK);
+            throws Exception {
+        return new ResponseEntity<>(orderService.order(session.getAttribute("CurrentUser"), shipmentId, paymentId), HttpStatus.OK);
     }
 
     @PutMapping("/changeDelivery/{orderId}")
     public ResponseEntity<OrdersResponse> changeDelivery(@PathVariable Long orderId,
-                                                         @RequestBody EDelivered status) throws OrderException {
-
+                                                         @RequestBody EDelivered status) throws CustomException {
         return new ResponseEntity<>(orderService.changeDelivery(status, orderId), HttpStatus.OK);
     }
 
-
+    @GetMapping("/getAll")
+    public ResponseEntity<List<OrdersResponse>> getOrder(HttpSession session) {
+        return new ResponseEntity<>(orderService.showOrders(session.getAttribute("CurrentUser")), HttpStatus.OK);
+    }
 }

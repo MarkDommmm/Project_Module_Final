@@ -32,15 +32,15 @@ public class PaymentService implements IGenericService<PaymentResponse, PaymentR
     }
 
     @Override
-    public PaymentResponse findById(Long aLong) throws  PaymentException {
+    public PaymentResponse findById(Long aLong) throws  CustomException {
         Optional<Payment> payment = paymentRepository.findById(aLong);
         return payment.map(o -> paymentMapper.toResponse(o)).orElseThrow(() ->
-                new PaymentException("Order not found"));
+                new CustomException("Order not found"));
     }
 
 
     @Override
-    public PaymentResponse save(PaymentRequest paymentRequest) throws CategoryException, BrandException, ColorException, DiscountException, ShipmentException {
+    public PaymentResponse save(PaymentRequest paymentRequest)  {
         return paymentMapper.toResponse(paymentRepository.save(paymentMapper.toEntity(paymentRequest)));
     }
 
@@ -52,12 +52,12 @@ public class PaymentService implements IGenericService<PaymentResponse, PaymentR
     }
 
     @Override
-    public PaymentResponse delete(Long aLong) {
+    public PaymentResponse delete(Long aLong) throws CustomException {
         Optional<Payment> p = paymentRepository.findById(aLong);
         if (p.isPresent()) {
             paymentRepository.deleteById(aLong);
             return paymentMapper.toResponse(p.get());
         }
-        return null;
+        throw  new CustomException("Couldn't find'");
     }
 }

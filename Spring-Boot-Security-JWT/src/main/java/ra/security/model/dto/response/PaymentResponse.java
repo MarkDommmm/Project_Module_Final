@@ -18,8 +18,6 @@ import java.util.List;
 public class PaymentResponse {
 
     private Long id;
-    private List<Orders> orders;
-
     private String provider;
     private boolean status;
     @JsonFormat(pattern = "dd/MM/yyyy")

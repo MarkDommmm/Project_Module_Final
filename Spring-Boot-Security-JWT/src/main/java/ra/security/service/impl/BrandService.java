@@ -2,11 +2,8 @@ package ra.security.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ra.security.exception.BrandException;
-import ra.security.exception.CategoryException;
+import ra.security.exception.CustomException;
 import ra.security.model.domain.Brand;
-import ra.security.model.domain.Category;
-import ra.security.model.domain.Product;
 import ra.security.model.dto.request.BrandRequest;
 import ra.security.model.dto.response.BrandResponse;
 import ra.security.repository.IBrandRepository;
@@ -32,41 +29,45 @@ public class BrandService implements IGenericService<BrandResponse, BrandRequest
     }
 
     @Override
-    public BrandResponse findById(Long aLong) {
+    public BrandResponse findById(Long aLong) throws CustomException {
         Optional<Brand> b = brandRepository.findById(aLong);
         if (b.isPresent()) {
             return brandMapper.toResponse(b.get());
         }
-        return null;
+        throw new CustomException("Brand not found");
     }
 
     @Override
-    public BrandResponse save(BrandRequest brandRequest) throws BrandException {
+    public BrandResponse save(BrandRequest brandRequest) throws CustomException {
         if (brandRepository.existsByName(brandRequest.getName())) {
-            throw new BrandException("Brand already exists");
+            throw new CustomException("Brand already exists");
         }
         return brandMapper.toResponse(brandRepository.save(brandMapper.toEntity(brandRequest)));
     }
 
     @Override
-    public BrandResponse update(BrandRequest brandRequest, Long id) {
-        Brand brand = brandMapper.toEntity(brandRequest);
-        brand.setId(id);
-        return brandMapper.toResponse(brandRepository.save(brand));
+    public BrandResponse update(BrandRequest brandRequest, Long id) throws CustomException {
+        Optional<Brand> check = brandRepository.findById(id);
+        if (check.isPresent()) {
+            Brand brand = brandMapper.toEntity(brandRequest);
+            brand.setId(id);
+            return brandMapper.toResponse(brandRepository.save(brand));
+        }
+        throw new CustomException("Brand not found");
     }
 
     @Override
-    public BrandResponse delete(Long aLong) {
+    public BrandResponse delete(Long aLong) throws CustomException {
         Optional<Brand> brand = brandRepository.findById(aLong);
         if (brand.isPresent()) {
             brandRepository.deleteById(aLong);
             return brandMapper.toResponse(brand.get());
         }
-        return null;
+        throw new CustomException("Brand not found");
     }
 
-    public Brand findBrandById(Long id) throws CategoryException {
+    public Brand findBrandById(Long id) throws CustomException {
         Optional<Brand> brand = brandRepository.findById(id);
-        return brand.orElseThrow(() -> new CategoryException("Brand not found"));
+        return brand.orElseThrow(() -> new CustomException("Brand not found"));
     }
 }

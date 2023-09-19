@@ -15,7 +15,7 @@ import ra.security.service.impl.PaymentService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v4/auth/payments")
+@RequestMapping("/api/v4/admin/payments")
 @CrossOrigin("*")
 public class PaymentController {
     @Autowired
@@ -27,12 +27,12 @@ public class PaymentController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<PaymentResponse> addBrand(@RequestBody PaymentRequest paymentRequest) throws ShipmentException, ColorException, CategoryException, BrandException, DiscountException {
+    public ResponseEntity<PaymentResponse> addBrand(@RequestBody PaymentRequest paymentRequest) {
         return new ResponseEntity<>(paymentService.save(paymentRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<PaymentResponse> getBrand(@PathVariable Long id) throws PaymentException {
+    public ResponseEntity<PaymentResponse> getBrand(@PathVariable Long id) throws CustomException {
         return new ResponseEntity<>(paymentService.findById(id), HttpStatus.OK);
     }
 
@@ -42,7 +42,7 @@ public class PaymentController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<PaymentResponse> deleteBrand(@PathVariable Long id) {
+    public ResponseEntity<PaymentResponse> deleteBrand(@PathVariable Long id) throws CustomException {
         return new ResponseEntity<>(paymentService.delete(id), HttpStatus.OK);
     }
 }

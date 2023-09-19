@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ra.security.exception.ColorException;
+import ra.security.exception.CustomException;
 import ra.security.model.dto.request.ColorRequest;
 import ra.security.model.dto.response.ColorResponse;
 import ra.security.service.impl.ColorService;
@@ -24,16 +24,16 @@ public class ColorController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ColorResponse> addColor(@RequestBody ColorRequest colorRequest) throws ColorException {
+    public ResponseEntity<ColorResponse> addColor(@RequestBody ColorRequest colorRequest) throws CustomException {
         return new ResponseEntity<>(colorService.save(colorRequest), HttpStatus.CREATED);
     }
     @GetMapping("/get/{id}")
-    public ResponseEntity<ColorResponse> getColor(@PathVariable Long id) throws ColorException {
+    public ResponseEntity<ColorResponse> getColor(@PathVariable Long id) throws CustomException {
         return new ResponseEntity<>(colorService.findById(id),HttpStatus.OK);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ColorResponse> updateColor(@PathVariable Long id,@RequestBody ColorRequest colorRequest){
+    public ResponseEntity<ColorResponse> updateColor(@PathVariable Long id,@RequestBody ColorRequest colorRequest) throws CustomException {
         return  new ResponseEntity<>(colorService.update(colorRequest,id),HttpStatus.OK);
     }
 

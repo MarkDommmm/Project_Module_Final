@@ -3,19 +3,16 @@ package ra.security.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import ra.security.advice.LoginException;
-import ra.security.exception.CartItemException;
 
+import ra.security.exception.CustomException;
 import ra.security.service.impl.CartService;
 import ra.security.service.impl.ProductService;
 
 import javax.servlet.http.HttpSession;
-import java.util.Objects;
 
 @RestController
-@RequestMapping("/api/v4/cart")
+@RequestMapping("/api/v4")
 @CrossOrigin("*")
 public class CartItemController {
     @Autowired
@@ -25,23 +22,23 @@ public class CartItemController {
     private ProductService productService;
 
 
-    @GetMapping("/getAll")
-    public ResponseEntity<?> getCart() {
+    @GetMapping("/public/cart/getAll")
+    public ResponseEntity<?> getCart() throws CustomException {
         return new ResponseEntity<>(cartService.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("/add/{id}")
-    public ResponseEntity<?> addCart(@PathVariable Long id, HttpSession session) throws CartItemException {
+    @GetMapping("/auth/cart/add/{id}")
+    public ResponseEntity<?> addCart(@PathVariable Long id, HttpSession session) throws CustomException {
         session.setAttribute("cart", cartService.addCart(id));
         return new ResponseEntity<>("Add Product Success", HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/removeProduct/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long id, HttpSession session) {
+    @DeleteMapping("/auth/cart/removeProduct/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id ) {
         try {
             cartService.deleteById(id);
             return new ResponseEntity<>("Delete Product Success", HttpStatus.OK);
-        } catch (CartItemException e) {
+        } catch (CustomException e) {
             return new ResponseEntity<>("Failed to delete product: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

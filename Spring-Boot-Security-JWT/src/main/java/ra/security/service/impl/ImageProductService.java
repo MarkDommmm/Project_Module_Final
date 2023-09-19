@@ -28,16 +28,16 @@ public class ImageProductService implements IGenericService<ImageProductResponse
     }
 
     @Override
-    public ImageProductResponse findById(Long aLong) throws CategoryException, ColorException, OrderException, DiscountException, OrderDetailException, ShipmentException, PaymentException {
+    public ImageProductResponse findById(Long aLong) throws  CustomException {
         Optional<ImageProduct> img = imageProductRepository.findById(aLong);
         return img.map(item -> imageProductMapper.toResponse(item)).orElseThrow(() ->
-                new DiscountException(("Discount not found")));
+                new CustomException(("Discount not found")));
     }
 
     @Override
-    public ImageProductResponse save(ImageProductRequest imageProductRequest) throws CategoryException, BrandException, ColorException, DiscountException, ShipmentException {
+    public ImageProductResponse save(ImageProductRequest imageProductRequest) throws  CustomException {
         if (imageProductRepository.existsByImage(imageProductRequest.getImage())) {
-            throw new DiscountException("Discount already exists");
+            throw new CustomException("Discount already exists");
         }
         return imageProductMapper.toResponse(imageProductRepository.save(imageProductMapper.toEntity(imageProductRequest)));
     }

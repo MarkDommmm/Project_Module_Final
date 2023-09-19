@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import ra.security.model.domain.Product;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 
 @AllArgsConstructor
@@ -16,7 +18,8 @@ import javax.persistence.*;
 public class ColorRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
+    @NotBlank(message = "Product name cannot be blank")
+    @NotEmpty(message = "Product name cannot be empty!!!")
     private String name;
 
     @ManyToOne

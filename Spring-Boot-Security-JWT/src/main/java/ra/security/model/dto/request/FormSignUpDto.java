@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ra.security.security.validate.NoNullOrEmpty;
+import ra.security.security.validate.ValidEmail;
 
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -15,16 +18,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FormSignUpDto {
-    @NotEmpty
 
-    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Email invalidate")
+    @ValidEmail
     private String email;
 
-    @NotEmpty
-    @Size(min = 6, message = "Username minimum 6 characters")
+    @NotBlank(message = "Product name cannot be blank")
+    @NotEmpty(message = "Product name cannot be empty!!!")
+    @Size(min = 6, message = "Product name must be at least 6 characters")
     private String username;
 
-    @Size(min = 6, message = "Password minimum 6 characters")
+    @NotBlank(message = "Password name cannot be blank")
+    @NotEmpty(message = "Password name cannot be empty!!!")
+    @Size(min = 6, message = "Password name must be at least 6 characters")
     private String password;
 
     private List<String> roles;

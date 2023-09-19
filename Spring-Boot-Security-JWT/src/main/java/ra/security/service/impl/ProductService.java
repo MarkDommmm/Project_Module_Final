@@ -3,8 +3,8 @@ package ra.security.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ra.security.exception.ImageProductException;
-import ra.security.exception.ProductException;
+
+import ra.security.exception.CustomException;
 import ra.security.model.domain.*;
 import ra.security.model.dto.request.ProductRequest;
 
@@ -44,18 +44,25 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         return productRepository.findAll().stream()
                 .map(p -> productMapper.toResponse(p)).collect(Collectors.toList());
     }
-
-    @Override
-    public ProductResponse findById(Long aLong) {
-        Optional<Product> p = productRepository.findById(aLong);
-        if (p.isPresent()) {
-            return productMapper.toResponse(p.get());
-        }
-        return null;
+    public List<ProductResponse> findAllInUser() {
+        return productRepository.findAll().stream()
+                .filter(p -> p.isStatus()) // Lọc các sản phẩm có trạng thái là true
+                .map(p -> productMapper.toResponse(p))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ProductResponse save(ProductRequest productRequest) {
+    public ProductResponse findById(Long aLong) throws CustomException {
+        Optional<Product> p = productRepository.findById(aLong);
+
+        if (p.isPresent()) {
+            return productMapper.toResponse(p.get());
+        }
+        throw  new CustomException("Product not found");
+    }
+
+    @Override
+    public ProductResponse save(ProductRequest productRequest) throws CustomException {
         Product product = productMapper.toEntity(productRequest);
         List<String> listUrl = new ArrayList<>();
         for (MultipartFile m : productRequest.getFile()) {
@@ -71,7 +78,6 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
 //        Product p = productRepository.save(productMapper.toEntity(productRequest));
         return productMapper.toResponse(productRepository.save(product));
     }
-
 
     @Override
     public ProductResponse update(ProductRequest productRequest, Long id) {
@@ -109,22 +115,22 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     }
 
     @Override
-    public ProductResponse delete(Long aLong) {
+    public ProductResponse delete(Long aLong) throws CustomException {
         Optional<Product> p = productRepository.findById(aLong);
         if (p.isPresent()) {
             productRepository.deleteById(aLong);
-            return productMapper.toResponse(p.get());
+        }else {
+            throw  new CustomException("Product not found");
         }
-        return null;
+    return null;
     }
 
-    public Product findProductById(Long id) throws ProductException {
+    public Product findProductById(Long id) throws CustomException {
         Optional<Product> optionalProduct = productRepository.findById(id);
-        return optionalProduct.orElseThrow(() -> new ProductException("product not found"));
+        return optionalProduct.orElseThrow(() -> new CustomException("product not found"));
     }
 
-
-    public ProductResponse addImageToProduct(MultipartFile multipartFile, Long id) throws ProductException {
+    public ProductResponse addImageToProduct(MultipartFile multipartFile, Long id) throws CustomException {
         Product product = findProductById(id);
         String url = storageService.uploadFile(multipartFile);
         product.getImages().add(
@@ -135,7 +141,7 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         return productMapper.toResponse(productRepository.save(product));
     }
 
-    public ProductResponse changeImageProduct(MultipartFile multipartFile, Long id) throws ProductException {
+    public ProductResponse changeImageProduct(MultipartFile multipartFile, Long id) throws CustomException {
         Product product = findProductById(id);
         String url = storageService.uploadFile(multipartFile);
         product.setMain_image(url);
@@ -143,7 +149,7 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     }
 
     @Transactional
-    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws ImageProductException, ProductException {
+    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws  CustomException {
         ImageProduct imageProduct = findImageProductById(idImage);
         Product product = findProductById(idProduct);
         product.getImages().remove(imageProduct);
@@ -151,19 +157,18 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         return productMapper.toResponse(product);
     }
 
-
-    public ImageProduct findImageProductById(Long idImage) throws ImageProductException {
+    public ImageProduct findImageProductById(Long idImage) throws CustomException {
         Optional<ImageProduct> optionalImageProduct = imageProductRepository.findById(idImage);
-        return optionalImageProduct.orElseThrow(() -> new ImageProductException("Image not found"));
+        return optionalImageProduct.orElseThrow(() -> new CustomException("Image not found"));
     }
 
-    public ProductResponse changeStatus(Long id) throws ProductException {
+    public ProductResponse changeStatus(Long id) throws CustomException {
         Product product = findProductById(id);
         product.setStatus(!product.isStatus());
         return productMapper.toResponse(productRepository.save(product));
     }
 
-    public ProductResponse changeBrand(Long idProduct, Long idBrand) throws ProductException {
+    public ProductResponse changeBrand(Long idProduct, Long idBrand) throws CustomException {
         Product p = findProductById(idProduct);
         Optional<Brand> brand = brandRepository.findById(idBrand);
         p.setBrand(brand.get());

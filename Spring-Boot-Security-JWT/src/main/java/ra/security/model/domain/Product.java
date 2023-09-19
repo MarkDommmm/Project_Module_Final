@@ -36,14 +36,11 @@ public class Product {
     private String main_image;
 
     @JsonIgnore
-    @OneToMany( fetch = FetchType.LAZY, mappedBy = "product" )
+    @OneToMany( fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL )
     private List<ImageProduct> images;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;
-
-
-
 
     @OneToMany(mappedBy = "products", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<OrderDetails> orderDetails;

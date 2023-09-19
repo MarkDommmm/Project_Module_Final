@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
+import ra.security.security.validate.NoNullOrEmpty;
 
+import javax.validation.constraints.*;
 import java.util.*;
 
 @Data
@@ -15,11 +17,18 @@ public class ProductRequest {
 
     private Long discount_id;
 
+    @NotBlank(message = "Product name cannot be blank")
+    @NotEmpty(message = "Product name cannot be empty!!!")
+    @Size(min = 10, message = "Product name must be at least 10 characters")
     private String name;
 
-    private double price;
+    @NotNull(message = "Product price cannot be empty!!!")
+    @Min(value = 1, message = "Product price must be greater than or equal to 1!!!")
+    private Double price;
 
-    private int stock;
+    @NotNull(message = "Product stock cannot be empty!!!")
+    @Min(value = 1, message = "Product stock must be greater than or equal to 1!!!")
+    private Integer stock;
 
     private String description;
 
@@ -27,13 +36,12 @@ public class ProductRequest {
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;
+    @NotNull(message = "Brand cannot be empty!!!")
+    private Long brandId;
 
-
+    @NoNullOrEmpty(message = "Category cannot be null or empty")
     private List<Long> category;
 
-    private Long brandId ;
-
+    @NoNullOrEmpty(message = "Color list cannot be null or empty")
     private List<Long> colors;
-
-    private boolean status;
 }

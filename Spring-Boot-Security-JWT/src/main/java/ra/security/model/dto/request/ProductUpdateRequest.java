@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 import ra.security.model.domain.Category;
 import ra.security.model.domain.Color;
+import ra.security.security.validate.NoNullOrEmpty;
 
+import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -21,11 +23,17 @@ public class ProductUpdateRequest {
 
 	private Long discount_id;
 
+	@NotBlank(message = "Product name cannot be blank")
+	@NotEmpty(message = "Product name cannot be empty!!!")
+	@Size(min = 10, message = "Product name must be at least 10 characters")
 	private String name;
+	@NotNull(message = "Product price cannot be empty!!!")
+	@Min(value = 1, message = "Product price must be greater than or equal to 1!!!")
+	private Double price;
 
-	private double price;
-
-	private int stock;
+	@NotNull(message = "Product stock cannot be empty!!!")
+	@Min(value = 1, message = "Product stock must be greater than or equal to 1!!!")
+	private Integer stock;
 
 	private String description;
 
@@ -35,10 +43,13 @@ public class ProductUpdateRequest {
 	private Date created_at;
 
 
+	@NotNull(message = "Brand cannot be empty!!!")
+	private Long brandId;
+
+	@NoNullOrEmpty(message = "Category cannot be null or empty")
 	private List<Long> category;
 
-	private Long brandId ;
-
+	@NoNullOrEmpty(message = "Color list cannot be null or empty")
 	private List<Long> colors;
 
 	private boolean status;

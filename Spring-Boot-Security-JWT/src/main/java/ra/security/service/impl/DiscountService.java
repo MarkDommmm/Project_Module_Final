@@ -28,16 +28,16 @@ public class DiscountService implements IGenericService<DiscountResponse, Discou
     }
 
     @Override
-    public DiscountResponse findById(Long aLong) throws CategoryException, ColorException, OrderException, DiscountException {
+    public DiscountResponse findById(Long aLong) throws CustomException {
         Optional<Discount> discount = discountRepsository.findById(aLong);
         return discount.map(item -> discountMapper.toResponse(item)).orElseThrow(() ->
-                new DiscountException(("Discount not found")));
+                new CustomException(("Discount not found")));
     }
 
     @Override
-    public DiscountResponse save(DiscountRequest discountRequest) throws CategoryException, BrandException, ColorException, DiscountException {
+    public DiscountResponse save(DiscountRequest discountRequest) throws  CustomException {
         if (discountRepsository.existsByName(discountRequest.getName())) {
-            throw new DiscountException("Discount already exists");
+            throw new CustomException("Discount already exists");
         }
         return discountMapper.toResponse(discountRepsository.save(discountMapper.toEntity(discountRequest)));
     }

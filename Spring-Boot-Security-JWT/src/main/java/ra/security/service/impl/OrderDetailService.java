@@ -29,15 +29,15 @@ public class OrderDetailService implements IGenericService<OrderDetailsResponse,
     }
 
     @Override
-    public OrderDetailsResponse findById(Long aLong) throws CategoryException, ColorException, OrderException, DiscountException, OrderDetailException {
+    public OrderDetailsResponse findById(Long aLong) throws  CustomException {
         Optional<OrderDetails> orderDetails = orderDetailRepository.findById(aLong);
 
         return orderDetails.map(o -> orderMapper.toResponse(o)).orElseThrow(()->
-                new OrderDetailException("OrderDetails not found"));
+                new CustomException("OrderDetails not found"));
     }
 
     @Override
-    public OrderDetailsResponse save(OrderDetailsRequest orderDetailsRequest) throws CategoryException, BrandException, ColorException, DiscountException {
+    public OrderDetailsResponse save(OrderDetailsRequest orderDetailsRequest) {
         return orderMapper.toResponse(orderDetailRepository.save(orderMapper.toEntity(orderDetailsRequest)));
     }
 

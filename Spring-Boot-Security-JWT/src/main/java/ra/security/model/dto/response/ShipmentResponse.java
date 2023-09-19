@@ -1,5 +1,6 @@
 package ra.security.model.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class ShipmentResponse {
     private String phone;
     private String email;
     private Date create_at;
+    @JsonIgnore
     private Long user_id;
 
 }

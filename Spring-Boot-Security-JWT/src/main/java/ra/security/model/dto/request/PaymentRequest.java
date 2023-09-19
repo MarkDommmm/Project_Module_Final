@@ -22,7 +22,7 @@ public class PaymentRequest {
     private List<Orders> orders;
 
     private String provider;
-    private boolean status;
+    private boolean status =true;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;
 

@@ -8,10 +8,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ra.security.advice.LoginException;
-import ra.security.model.domain.Users;
+import ra.security.exception.LoginException;
 import ra.security.model.dto.request.FormSignInDto;
 import ra.security.model.dto.request.FormSignUpDto;
 import ra.security.model.dto.response.JwtResponse;
@@ -24,12 +23,12 @@ import ra.security.service.impl.MailService;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v4/auth")
+@RequestMapping("/api/v4/public")
 @CrossOrigin("*")
+
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -72,10 +71,11 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up")
-    private ResponseEntity<String> signup(@Valid @RequestBody FormSignUpDto formSignUpDto) {
-        mailService.sendMail(formSignUpDto.getEmail(), "Resgister", "Welcome to HH STORE");
+    private ResponseEntity<?> signup(@Validated @RequestBody FormSignUpDto formSignUpDto) {
+        mailService.sendMail(formSignUpDto.getEmail(), "HH STORE ALERT", "Welcome to HH STORE \n Register successfully");
         userService.save(formSignUpDto);
-        return new ResponseEntity("success", HttpStatus.CREATED);
+        return new ResponseEntity<>("Congratulations register successfully", HttpStatus.CREATED);
     }
+
 
 }
