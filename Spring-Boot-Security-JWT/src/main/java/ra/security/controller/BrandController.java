@@ -13,7 +13,7 @@ import ra.security.service.impl.BrandService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v4/auth/brand")
+@RequestMapping("/api/v4/admin/brand")
 @CrossOrigin("*")
 public class BrandController {
 

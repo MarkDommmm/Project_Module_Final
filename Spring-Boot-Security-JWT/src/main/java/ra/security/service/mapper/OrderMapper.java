@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ra.security.model.domain.EDelivered;
 import ra.security.model.domain.Orders;
+import ra.security.model.domain.Shipment;
 import ra.security.model.domain.Users;
 import ra.security.model.dto.request.OrdersRequest;
 import ra.security.model.dto.response.OrdersResponse;
+import ra.security.repository.IShipmentRepository;
 import ra.security.repository.IUserRepository;
 import ra.security.service.IGenericMapper;
 
@@ -15,7 +17,7 @@ import java.util.Optional;
 @Component
 public class OrderMapper implements IGenericMapper<Orders, OrdersRequest, OrdersResponse> {
     @Autowired
-    private IUserRepository userRepository;
+    private IShipmentRepository shipmentRepository;
     @Override
     public Orders toEntity(OrdersRequest ordersRequest) {
         return Orders.builder()
@@ -30,12 +32,12 @@ public class OrderMapper implements IGenericMapper<Orders, OrdersRequest, Orders
 
     @Override
     public OrdersResponse toResponse(Orders orders) {
-        return OrdersResponse.builder()
+         return OrdersResponse.builder()
                 .id(orders.getId())
-                .payment(orders.getPayment())
+                .payment(orders.getPayment().getId())
                 .discount(orders.getDiscount())
                 .total_price(orders.getTotal_price())
-                .shipment(orders.getShipment())
+                .shipment(orders.getShipment().getId())
                 .order_at(orders.getOrder_at())
                 .eDelivered(String.valueOf(orders.getEDelivered()))
                 .users(orders.getUsers().getId())

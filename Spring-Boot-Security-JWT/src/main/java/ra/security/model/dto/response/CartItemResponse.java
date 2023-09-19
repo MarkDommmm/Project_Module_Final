@@ -14,8 +14,9 @@ import ra.security.model.domain.Product;
 public class CartItemResponse {
 
     private Long idCart;
-
-    private ProductResponse product;
+    private Long idProduct;
+    private String product_name;
+    private String img;
 
     private int quantity;
 

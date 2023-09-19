@@ -14,6 +14,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ControllerAdvice {
+
     @ExceptionHandler(LoginException.class)
     public ResponseEntity<String> loginFail(LoginException loginException) {
         return new ResponseEntity<>(loginException.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -89,6 +90,15 @@ public class ControllerAdvice {
     @ExceptionHandler(ImageProductException.class)
     public String handleExceptionImage(ImageProductException e) {
         return "Exception image --> " + e.getMessage();
+    }
+
+    @ExceptionHandler(ShipmentException.class)
+    public String handleExceptionShipment(ShipmentException e) {
+        return "Exception shipment --> " + e.getMessage();
+    }
+    @ExceptionHandler(PaymentException.class)
+    public String handleExceptionPayment(PaymentException e) {
+        return "Exception payment --> " + e.getMessage();
     }
 
 }

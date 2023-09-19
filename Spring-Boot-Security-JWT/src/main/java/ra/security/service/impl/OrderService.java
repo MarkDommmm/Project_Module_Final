@@ -2,19 +2,14 @@ package ra.security.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ra.security.exception.ColorException;
-import ra.security.exception.OrderException;
-import ra.security.exception.ProductException;
-import ra.security.exception.UserException;
+import ra.security.exception.*;
 import ra.security.model.domain.*;
 import ra.security.model.dto.request.OrdersRequest;
 import ra.security.model.dto.response.CartItemResponse;
 import ra.security.model.dto.response.OrdersResponse;
 import ra.security.model.dto.response.ProductResponse;
-import ra.security.repository.IOrderRepository;
-import ra.security.repository.IProductRepository;
-import ra.security.repository.IUserRepository;
-import ra.security.repository.OrderDetailRepository;
+import ra.security.model.dto.response.ShipmentResponse;
+import ra.security.repository.*;
 import ra.security.service.IGenericService;
 import ra.security.service.mapper.OrderDetailsMapper;
 import ra.security.service.mapper.OrderMapper;
@@ -41,6 +36,12 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
     private CartService cartService;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private ShipmentService shipmentService;
+    @Autowired
+    private IShipmentRepository shipmentRepository;
+    @Autowired
+    private IPaymentRepository paymentRepository;
 
     @Override
     public List<OrdersResponse> findAll() {
@@ -83,37 +84,48 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
         return orderMapper.toResponse(orderRepository.save(o));
     }
 
-    public OrdersResponse changeDelivery(String typeDelivery, Long id) throws OrderException {
-        EDelivered type = findDeliveryByInput(typeDelivery);
-        Orders orders = findOrderById(id);
-        if (orders.getEDelivered().toString().equals("PENDING")) {
-            if (type.toString().equals("DELIVERY") || type.toString().equals("SUCCESS")) {
-                throw new OrderException("You are in the status of waiting for confirmation");
-            }
-            orders.setEDelivered(type);
-        } else if (orders.getEDelivered().toString().equals("PREPARE")) {
-            if (type.toString().equals("PENDING") || type.toString().equals("SUCCESS")) {
-                throw new OrderException("You are in preparation mode");
-            }
-            orders.setEDelivered(type);
-        } else if (orders.getEDelivered().toString().equals("DELIVERY")) {
-            if (type.toString().equals("PENDING") || type.toString().equals("PREPARE")) {
-                throw new OrderException("You are in the delivery status");
-            }
-            orders.setEDelivered(type);
-        } else if (orders.getEDelivered().toString().equals("SUCCESS")) {
-            if (type.toString().equals("PENDING") || type.toString().equals("PREPARE") || type.toString().equals("DELIVERY")) {
-                throw new OrderException("You are in the successful delivery status");
-            }
-            orders.setEDelivered(type);
-        } else {
-            if (type.toString().equals("PENDING") || type.toString().equals("PREPARE") || type.toString().equals("DELIVERY") || type.toString().equals("SUCCESS")) {
-                throw new OrderException("You are in the order cancellation status");
-            }
-            orders.setEDelivered(type);
+    public OrdersResponse changeDelivery(EDelivered newDelivery, Long orderId) throws OrderException {
+        Orders orders = findOrderById(orderId);
+        EDelivered currentDelivery = orders.getEDelivered();
+        System.out.println(newDelivery + "+++++++++++++++++++++++++++++++");
+        if (newDelivery == currentDelivery) {
+            throw new OrderException("You are already in the " + currentDelivery + " status");
         }
+
+        switch (currentDelivery) {
+            case PENDING:
+                if (newDelivery == EDelivered.DELIVERY || newDelivery == EDelivered.SUCCESS) {
+                    throw new OrderException("You are in the status of waiting for confirmation");
+                }
+                break;
+            case PREPARE:
+                if (newDelivery == EDelivered.PENDING || newDelivery == EDelivered.SUCCESS) {
+                    throw new OrderException("You are in preparation mode");
+                }
+                break;
+            case DELIVERY:
+                if (newDelivery == EDelivered.PENDING || newDelivery == EDelivered.PREPARE) {
+                    throw new OrderException("You are in the delivery status");
+                }
+                break;
+            case SUCCESS:
+                if (newDelivery == EDelivered.PENDING || newDelivery == EDelivered.PREPARE || newDelivery == EDelivered.DELIVERY) {
+                    throw new OrderException("You are in the successful delivery status");
+                }
+                break;
+            case CANCEL:
+                if (newDelivery != EDelivered.CANCEL) {
+                    throw new OrderException("You are in the order cancellation status");
+                }
+                break;
+            default:
+                throw new OrderException("Invalid delivery status");
+        }
+
+        orders.setEDelivered(newDelivery);
         return orderMapper.toResponse(orderRepository.save(orders));
     }
+
 
     public EDelivered findDeliveryByInput(String typeDelivery) throws OrderException {
         switch (typeDelivery) {
@@ -142,19 +154,43 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
         return p.orElseThrow(() -> new ProductException("Product not found"));
     }
 
-    public OrdersResponse order(Long userId) throws UserException, ProductException, OrderException {
+    public Shipment findShipmentById(Long shipmentID) throws ShipmentException {
+        Optional<Shipment> p = shipmentRepository.findById(shipmentID);
+        return p.orElseThrow(() -> new ShipmentException("Shipment not found"));
+    }
+
+    public Payment findPaymentById(Long paymentId) throws PaymentException {
+        Optional<Payment> p = paymentRepository.findById(paymentId);
+        return p.orElseThrow(() -> new PaymentException("Shipment not found"));
+    }
+
+    public OrdersResponse order(Long userId, Long shipmentId, Long paymentId) throws UserException, ProductException, OrderException, ColorException, CategoryException, OrderDetailException, DiscountException, ShipmentException, CartItemException, PaymentException {
         Users u = findUserById(userId);
+        Shipment shipment = findShipmentById(shipmentId);
+        Payment payment = findPaymentById(paymentId);
         List<CartItemResponse> cartItemList = cartService.findAll();
+        if (cartItemList.isEmpty()) {
+            throw new CartItemException("Cart isEmpty!!!");
+        }
         // Tạo một đơn hàng
+        double totalPrice = cartItemList.stream()
+                .mapToDouble(CartItemResponse::getPrice) // Chuyển đổi từ CartItemResponse thành giá tiền (double)
+                .sum();
+
         Orders order = Orders.builder()
                 .order_at(new Date())
                 .eDelivered(EDelivered.PENDING)
                 .users(u)
+                .shipment(shipment)
+                .payment(payment)
+                .total_price(totalPrice)
                 .status(true)
                 .build();
         orderRepository.save(order);
+
         for (CartItemResponse p : cartItemList) {
-            Product product = findProductById(p.getProduct().getId());
+            Product product = findProductById(p.getIdProduct());
+
             OrderDetails orderDetails = OrderDetails.builder()
                     .orders(order)
                     .created_at(new Date())

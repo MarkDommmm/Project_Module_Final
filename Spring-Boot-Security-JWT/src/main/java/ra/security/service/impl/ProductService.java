@@ -3,11 +3,15 @@ package ra.security.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ra.security.model.domain.ImageProduct;
-import ra.security.model.domain.Product;
+import ra.security.exception.ImageProductException;
+import ra.security.exception.ProductException;
+import ra.security.model.domain.*;
 import ra.security.model.dto.request.ProductRequest;
 
+import ra.security.model.dto.request.ProductUpdateRequest;
 import ra.security.model.dto.response.ProductResponse;
+import ra.security.repository.IBrandRepository;
+import ra.security.repository.IImageProductRepository;
 import ra.security.repository.IProductRepository;
 import ra.security.service.IGenericService;
 import ra.security.service.mapper.ProductMapper;
@@ -27,6 +31,10 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     private ProductMapper productMapper;
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private IImageProductRepository imageProductRepository;
+    @Autowired
+    private IBrandRepository brandRepository;
 
     @Override
     public List<ProductResponse> findAll() {
@@ -69,6 +77,34 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         return productMapper.toResponse(productRepository.save(p));
     }
 
+    public ProductResponse updateProduct(ProductUpdateRequest productUpdateRequest, Long id) {
+        Product p = productMapper.toEntity(productUpdateRequest);
+        p.setId(id);
+        List<String> categories = p.getCategory().stream()
+                .map(Category::getName).collect(Collectors.toList());
+
+        Optional<Brand> b = brandRepository.findById(p.getBrand().getId());
+//        String brand = String.valueOf(b.get().getName());
+
+        List<String> color = p.getColors().stream()
+                .map(Color::getName).collect(Collectors.toList());
+        ProductResponse productResponse = ProductResponse.builder()
+                .id(p.getId())
+                .name(p.getName())
+                .price(p.getPrice())
+                .description(p.getDescription())
+                .stock(p.getStock())
+                .category(categories)
+                .brand(b)
+                .colors(color)
+                .discount_id(p.getDiscount_id())
+                .created_at(p.getCreated_at())
+                .status(p.isStatus())
+                .build();
+        productRepository.save(p);
+        return productResponse;
+    }
+
     @Override
     public ProductResponse delete(Long aLong) {
         Optional<Product> p = productRepository.findById(aLong);
@@ -77,6 +113,36 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
             return productMapper.toResponse(p.get());
         }
         return null;
+    }
+
+    public Product findProductById(Long id) throws ProductException {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        return optionalProduct.orElseThrow(() -> new ProductException("product not found"));
+    }
+
+    public ProductResponse changeStatus(Long id) throws ProductException {
+        Product product = findProductById(id);
+        product.setStatus(!product.isStatus());
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    public ProductResponse addImageToProduct(MultipartFile multipartFile, Long id) throws ProductException {
+        Product product = findProductById(id);
+        String url = storageService.uploadFile(multipartFile);
+        product.getImages().add(ImageProduct.builder().image(url).product(product).build());
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws ImageProductException, ProductException {
+        ImageProduct imageProduct = findImageProductById(idImage);
+        Product product = findProductById(idProduct);
+        product.getImages().add(imageProduct);
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    public ImageProduct findImageProductById(Long idImage) throws ImageProductException {
+        Optional<ImageProduct> optionalImageProduct = imageProductRepository.findById(idImage);
+        return optionalImageProduct.orElseThrow(() -> new ImageProductException("Image not found"));
     }
 }
 

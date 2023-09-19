@@ -30,9 +30,6 @@ public class Users {
 
     private boolean status;
 
-//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<Orders> orders = new ArrayList<>();
-
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Shipment> shipments = new ArrayList<>();
 

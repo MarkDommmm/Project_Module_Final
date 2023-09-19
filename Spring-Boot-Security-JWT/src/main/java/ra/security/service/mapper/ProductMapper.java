@@ -11,6 +11,7 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ra.security.model.domain.*;
 import ra.security.model.dto.request.ProductRequest;
+import ra.security.model.dto.request.ProductUpdateRequest;
 import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IBrandRepository;
 import ra.security.repository.ICategoryRepository;
@@ -73,7 +74,32 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
 
         return product;
     }
+    public Product toEntity(ProductUpdateRequest productRequest) {
+        // Lấy danh sách danh mục từ danh sách ID
+        List<Category> categories = categoryRepository.findAllByIdIn(productRequest.getCategory());
 
+        // Lấy danh sách màu sắc từ danh sách ID
+        List<Color> colors = colorRepository.findAllByIdIn(productRequest.getColors());
+
+        // Lấy thương hiệu dựa trên ID
+        Optional<Brand> b = brandRepository.findById(productRequest.getBrandId());
+
+
+        // Xây dựng đối tượng Products bằng cách sử dụng thông tin từ ProductRequest và các đối tượng đã lấy
+        Product product = Product.builder()
+                .name(productRequest.getName())
+                .price(productRequest.getPrice())
+                .description(productRequest.getDescription())
+                .brand(b.orElse(null))  // Sử dụng orElse để tránh lỗi nếu không tìm thấy thương hiệu
+                .category(categories)
+                .stock(productRequest.getStock())
+                .colors(colors)
+                .created_at(new Date())
+                .status(true)
+                .build();
+
+        return product;
+    }
     @Override
     public ProductResponse toResponse(Product products) {
         List<String> categories = products.getCategory().stream()
@@ -89,6 +115,7 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
 
         List<String> images = products.getImages().stream()
                 .map(ImageProduct::getImage).collect(Collectors.toList());
+
         return ProductResponse.builder()
                 .id(products.getId())
                 .name(products.getName())

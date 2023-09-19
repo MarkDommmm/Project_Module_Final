@@ -33,9 +33,11 @@ public class CartMapper implements IGenericMapper<CartItem, CartItemRequest, Car
         ProductResponse p = productService.findById(cartItem.getProduct().getId());
         return CartItemResponse.builder()
                 .idCart(cartItem.getIdCart())
-                .product(p)
+                .idProduct(p.getId())
+                .product_name(p.getName())
+                .img(p.getMain_image())
                 .quantity(cartItem.getQuantity())
-                .price(cartItem.getPrice())
+                .price(cartItem.getProduct().getPrice() * cartItem.getQuantity())
                 .status(cartItem.isStatus())
                 .build();
     }

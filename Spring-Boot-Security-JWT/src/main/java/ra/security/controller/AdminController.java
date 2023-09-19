@@ -20,13 +20,6 @@ public class AdminController {
     private ProductService productService;
     @Autowired
     private ColorService colorService;
-    @PostMapping("/addProduct")
-    private ResponseEntity<ProductResponse> addProduct(
-            @ModelAttribute ProductRequest productRequest) {
-        return new ResponseEntity<>(productService.save(productRequest), HttpStatus.CREATED);
-    }
-    @PostMapping("/addColor")
-    public ResponseEntity<ColorResponse> addColor(@RequestBody ColorRequest colorRequest) throws ColorException {
-        return new ResponseEntity<>(colorService.save(colorRequest), HttpStatus.CREATED);
-    }
+
+
 }

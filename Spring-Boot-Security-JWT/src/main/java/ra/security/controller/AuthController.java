@@ -40,10 +40,6 @@ public class AuthController {
     @Autowired
     private MailService mailService;
 
-    @GetMapping
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("vào được rồi nè");
-    }
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtResponse> signin(@RequestBody FormSignInDto formSignInDto, HttpSession session) throws LoginException {
@@ -56,7 +52,7 @@ public class AuthController {
             ); // tạo đối tương authentiction để xác thực thông qua username va password
             // tạo token và trả về cho người dùng
 
-            session.setAttribute("CurrentUser", authentication);
+            session.setAttribute("CurrentUser", formSignInDto.getUsername());
         } catch (AuthenticationException e) {
             throw new LoginException("Username or password is incorrect");
         }
@@ -66,7 +62,8 @@ public class AuthController {
         // lấy ra user principle
         List<String> roles = userPrinciple.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        return ResponseEntity.ok(JwtResponse.builder().token(token)
+        return ResponseEntity.ok(JwtResponse.builder()
+                .token(token)
                 .name(userPrinciple.getName())
                 .username(userPrinciple.getUsername())
                 .roles(roles)

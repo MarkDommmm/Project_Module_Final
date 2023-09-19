@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import ra.security.advice.LoginException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,11 +17,11 @@ import java.io.IOException;
 @Component
 
 public class JwtEntryPoint implements AuthenticationEntryPoint {
-    public  final Logger logger = LoggerFactory.getLogger(JwtEntryPoint.class);
+    public final Logger logger = LoggerFactory.getLogger(JwtEntryPoint.class);
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         logger.error("Error->>> Authentication : ", authException.getMessage());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Not Authentication");
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Not Authentication");
     }
 }

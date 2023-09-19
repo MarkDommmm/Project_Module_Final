@@ -21,13 +21,13 @@ public class OrdersResponse {
 
     private Long id;
 
-    private Payment payment;
+    private Long payment;
 
     private Discount discount;
     private String eDelivered;
     private double total_price;
 
-    private Shipment shipment;
+    private Long shipment;
     private Long users;
     private Date order_at;
 
