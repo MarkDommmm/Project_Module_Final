@@ -15,10 +15,12 @@ import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IProductRepository;
 import ra.security.security.jwt.JwtProvider;
 import ra.security.service.IUserService;
+import ra.security.service.impl.ImageProductService;
 import ra.security.service.impl.ProductService;
 import ra.security.service.mapper.ProductMapper;
 import ra.security.service.upload_aws.StorageService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
@@ -28,6 +30,8 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+    @Autowired
+    private ImageProductService imageProductService;
 
     @GetMapping("/auth/products/getAll")
     public ResponseEntity<List<ProductResponse>> getProducts() {
@@ -45,7 +49,7 @@ public class ProductController {
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long productId,
             @RequestBody ProductUpdateRequest productRequest) {
-        return new ResponseEntity<>(productService.updateProduct(productRequest,productId),HttpStatus.OK);
+        return new ResponseEntity<>(productService.updateProduct(productRequest, productId), HttpStatus.OK);
     }
 
     @GetMapping("/admin/products/get/{id}")
@@ -57,15 +61,30 @@ public class ProductController {
     public ResponseEntity<ProductResponse> deleteProduct(@PathVariable Long id) {
         return new ResponseEntity<>(productService.delete(id), HttpStatus.OK);
     }
+
     @GetMapping("/admin/changeStatus/{id}")
-    public ResponseEntity<ProductResponse> handleChangeStatusProduct(@PathVariable Long id) throws  ProductException {
+    public ResponseEntity<ProductResponse> handleChangeStatusProduct(@PathVariable Long id) throws ProductException {
         return new ResponseEntity<>(productService.changeStatus(id), HttpStatus.OK);
     }
+
+    @GetMapping("/admin/product/{productId}/changeBrand/{brandId}")
+    public ResponseEntity<ProductResponse> handleChangeBrandProduct(
+            @PathVariable Long brandId,
+            @PathVariable Long productId) throws ProductException {
+        return new ResponseEntity<>(productService.changeBrand(productId,brandId), HttpStatus.OK);
+    }
+
     @PutMapping("/addImage/toProduct/{id}")
     public ResponseEntity<ProductResponse> handleAddImageToProduct(@RequestParam("file") MultipartFile multipartFile, @PathVariable Long id) throws ProductException {
         return new ResponseEntity<>(productService.addImageToProduct(multipartFile, id), HttpStatus.CREATED);
     }
 
+    @PutMapping("/changeImage/toProduct/{id}")
+    public ResponseEntity<ProductResponse> handleChangeImage(@RequestParam("file") MultipartFile multipartFile, @PathVariable Long id) throws ProductException {
+        return new ResponseEntity<>(productService.changeImageProduct(multipartFile, id), HttpStatus.CREATED);
+    }
+
+    @Transactional
     @DeleteMapping("/deleteImage/{idImage}/inProduct/{idProduct}")
     public ResponseEntity<ProductResponse> handleDeleteImageInProduct(@PathVariable Long idImage, @PathVariable Long idProduct) throws ImageProductException, ProductException, ImageProductException {
         return new ResponseEntity<>(productService.deleteImageInProduct(idImage, idProduct), HttpStatus.OK);

@@ -1,6 +1,7 @@
 package ra.security.model.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,14 +35,14 @@ public class Product {
 
     private String main_image;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "product")
+    @JsonIgnore
+    @OneToMany( fetch = FetchType.LAZY, mappedBy = "product" )
     private List<ImageProduct> images;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date modified_at;
+
 
 
     @OneToMany(mappedBy = "products", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

@@ -6,4 +6,5 @@ import ra.security.model.domain.ImageProduct;
 
 @Repository
 public interface IImageProductRepository extends JpaRepository<ImageProduct, Long> {
+    boolean existsByImage(String img);
 }

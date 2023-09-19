@@ -190,7 +190,8 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
 
         for (CartItemResponse p : cartItemList) {
             Product product = findProductById(p.getIdProduct());
-
+            product.setStock(product.getStock() - p.getQuantity());
+            productRepository.save(product);
             OrderDetails orderDetails = OrderDetails.builder()
                     .orders(order)
                     .created_at(new Date())

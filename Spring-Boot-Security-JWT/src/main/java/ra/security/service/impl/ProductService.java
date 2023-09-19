@@ -17,6 +17,7 @@ import ra.security.service.IGenericService;
 import ra.security.service.mapper.ProductMapper;
 import ra.security.service.upload_aws.StorageService;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,8 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     private IImageProductRepository imageProductRepository;
     @Autowired
     private IBrandRepository brandRepository;
+    @Autowired
+    private ImageProductService imageProductService;
 
     @Override
     public List<ProductResponse> findAll() {
@@ -120,30 +123,53 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         return optionalProduct.orElseThrow(() -> new ProductException("product not found"));
     }
 
+
+    public ProductResponse addImageToProduct(MultipartFile multipartFile, Long id) throws ProductException {
+        Product product = findProductById(id);
+        String url = storageService.uploadFile(multipartFile);
+        product.getImages().add(
+                ImageProduct.builder()
+                        .image(url)
+                        .product(product)
+                        .build());
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    public ProductResponse changeImageProduct(MultipartFile multipartFile, Long id) throws ProductException {
+        Product product = findProductById(id);
+        String url = storageService.uploadFile(multipartFile);
+        product.setMain_image(url);
+        return productMapper.toResponse(productRepository.save(product));
+    }
+
+    @Transactional
+    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws ImageProductException, ProductException {
+        ImageProduct imageProduct = findImageProductById(idImage);
+        Product product = findProductById(idProduct);
+        product.getImages().remove(imageProduct);
+        imageProductService.delete(idImage);
+        return productMapper.toResponse(product);
+    }
+
+
+    public ImageProduct findImageProductById(Long idImage) throws ImageProductException {
+        Optional<ImageProduct> optionalImageProduct = imageProductRepository.findById(idImage);
+        return optionalImageProduct.orElseThrow(() -> new ImageProductException("Image not found"));
+    }
+
     public ProductResponse changeStatus(Long id) throws ProductException {
         Product product = findProductById(id);
         product.setStatus(!product.isStatus());
         return productMapper.toResponse(productRepository.save(product));
     }
 
-    public ProductResponse addImageToProduct(MultipartFile multipartFile, Long id) throws ProductException {
-        Product product = findProductById(id);
-        String url = storageService.uploadFile(multipartFile);
-        product.getImages().add(ImageProduct.builder().image(url).product(product).build());
-        return productMapper.toResponse(productRepository.save(product));
+    public ProductResponse changeBrand(Long idProduct, Long idBrand) throws ProductException {
+        Product p = findProductById(idProduct);
+        Optional<Brand> brand = brandRepository.findById(idBrand);
+        p.setBrand(brand.get());
+        return productMapper.toResponse(productRepository.save(p));
     }
 
-    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws ImageProductException, ProductException {
-        ImageProduct imageProduct = findImageProductById(idImage);
-        Product product = findProductById(idProduct);
-        product.getImages().add(imageProduct);
-        return productMapper.toResponse(productRepository.save(product));
-    }
-
-    public ImageProduct findImageProductById(Long idImage) throws ImageProductException {
-        Optional<ImageProduct> optionalImageProduct = imageProductRepository.findById(idImage);
-        return optionalImageProduct.orElseThrow(() -> new ImageProductException("Image not found"));
-    }
 }
 
 
