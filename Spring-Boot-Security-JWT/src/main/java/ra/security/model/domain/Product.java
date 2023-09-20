@@ -19,10 +19,14 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long id;
 
-    private Long discount_id;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "discount_product",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "discount_id"))
+    private List<Discount> discount;
+
 
     private String name;
 
@@ -36,7 +40,7 @@ public class Product {
     private String main_image;
 
     @JsonIgnore
-    @OneToMany( fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL )
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product", cascade = CascadeType.ALL)
     private List<ImageProduct> images;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
@@ -51,11 +55,8 @@ public class Product {
     @ManyToOne
     private Brand brand;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "product_color"
-            , joinColumns = @JoinColumn(name = "color_id")
-            , inverseJoinColumns = @JoinColumn(name = "product_id"))
-    private List<Color> colors;
+    @ManyToOne
+    private Color colors;
 
     private boolean status;
 }

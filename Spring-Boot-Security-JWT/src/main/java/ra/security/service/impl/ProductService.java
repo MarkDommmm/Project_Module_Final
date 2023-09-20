@@ -10,9 +10,7 @@ import ra.security.model.dto.request.ProductRequest;
 
 import ra.security.model.dto.request.ProductUpdateRequest;
 import ra.security.model.dto.response.ProductResponse;
-import ra.security.repository.IBrandRepository;
-import ra.security.repository.IImageProductRepository;
-import ra.security.repository.IProductRepository;
+import ra.security.repository.*;
 import ra.security.service.IGenericService;
 import ra.security.service.mapper.ProductMapper;
 import ra.security.service.upload_aws.StorageService;
@@ -38,12 +36,17 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     private IBrandRepository brandRepository;
     @Autowired
     private ImageProductService imageProductService;
+    @Autowired
+    private IColorRepository colorRepository;
+    @Autowired
+    private IDiscountRepsository discountRepsository;
 
     @Override
     public List<ProductResponse> findAll() {
         return productRepository.findAll().stream()
                 .map(p -> productMapper.toResponse(p)).collect(Collectors.toList());
     }
+
     public List<ProductResponse> findAllInUser() {
         return productRepository.findAll().stream()
                 .filter(p -> p.isStatus()) // Lọc các sản phẩm có trạng thái là true
@@ -58,7 +61,7 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         if (p.isPresent()) {
             return productMapper.toResponse(p.get());
         }
-        throw  new CustomException("Product not found");
+        throw new CustomException("Product not found");
     }
 
     @Override
@@ -89,14 +92,11 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     public ProductResponse updateProduct(ProductUpdateRequest productUpdateRequest, Long id) {
         Product p = productMapper.toEntity(productUpdateRequest);
         p.setId(id);
+        List<Discount> discounts = discountRepsository.findAllByIdIn(productUpdateRequest.getDiscounts());
         List<String> categories = p.getCategory().stream()
                 .map(Category::getName).collect(Collectors.toList());
-
         Optional<Brand> b = brandRepository.findById(p.getBrand().getId());
-//        String brand = String.valueOf(b.get().getName());
-
-        List<String> color = p.getColors().stream()
-                .map(Color::getName).collect(Collectors.toList());
+        Optional<Color> c = colorRepository.findById(p.getColors().getId());
         ProductResponse productResponse = ProductResponse.builder()
                 .id(p.getId())
                 .name(p.getName())
@@ -105,11 +105,12 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
                 .stock(p.getStock())
                 .category(categories)
                 .brand(b)
-                .colors(color)
-                .discount_id(p.getDiscount_id())
+                .colors(c)
+                .discount(discounts.stream().map(Discount::getName).collect(Collectors.toList()))
                 .created_at(p.getCreated_at())
                 .status(p.isStatus())
                 .build();
+            p.setDiscount(discounts);
         productRepository.save(p);
         return productResponse;
     }
@@ -119,10 +120,10 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         Optional<Product> p = productRepository.findById(aLong);
         if (p.isPresent()) {
             productRepository.deleteById(aLong);
-        }else {
-            throw  new CustomException("Product not found");
+        } else {
+            throw new CustomException("Product not found");
         }
-    return null;
+        return null;
     }
 
     public Product findProductById(Long id) throws CustomException {
@@ -149,7 +150,7 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
     }
 
     @Transactional
-    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws  CustomException {
+    public ProductResponse deleteImageInProduct(Long idImage, Long idProduct) throws CustomException {
         ImageProduct imageProduct = findImageProductById(idImage);
         Product product = findProductById(idProduct);
         product.getImages().remove(imageProduct);
@@ -174,6 +175,7 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         p.setBrand(brand.get());
         return productMapper.toResponse(productRepository.save(p));
     }
+
 
 }
 

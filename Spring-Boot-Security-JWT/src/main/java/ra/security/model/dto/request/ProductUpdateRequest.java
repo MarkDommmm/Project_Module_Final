@@ -21,7 +21,7 @@ import java.util.Set;
 @Builder
 public class ProductUpdateRequest {
 
-	private Long discount_id;
+
 
 	@NotBlank(message = "Product name cannot be blank")
 	@NotEmpty(message = "Product name cannot be empty!!!")
@@ -49,8 +49,10 @@ public class ProductUpdateRequest {
 	@NoNullOrEmpty(message = "Category cannot be null or empty")
 	private List<Long> category;
 
-	@NoNullOrEmpty(message = "Color list cannot be null or empty")
-	private List<Long> colors;
+	@NotNull(message = "Brand cannot be empty!!!")
+	private Long colors;
 
+	@NoNullOrEmpty(message = "Discount cannot be null or empty")
+	private List<Long> discounts;
 	private boolean status;
 }

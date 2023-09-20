@@ -31,13 +31,13 @@ public class ImageProductService implements IGenericService<ImageProductResponse
     public ImageProductResponse findById(Long aLong) throws  CustomException {
         Optional<ImageProduct> img = imageProductRepository.findById(aLong);
         return img.map(item -> imageProductMapper.toResponse(item)).orElseThrow(() ->
-                new CustomException(("Discount not found")));
+                new CustomException(("Image not found")));
     }
 
     @Override
     public ImageProductResponse save(ImageProductRequest imageProductRequest) throws  CustomException {
         if (imageProductRepository.existsByImage(imageProductRequest.getImage())) {
-            throw new CustomException("Discount already exists");
+            throw new CustomException("Image already exists");
         }
         return imageProductMapper.toResponse(imageProductRepository.save(imageProductMapper.toEntity(imageProductRequest)));
     }

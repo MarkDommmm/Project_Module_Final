@@ -27,7 +27,6 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/v4")
 @CrossOrigin("*")
-@Validated
 public class ProductController {
 
     @Autowired
@@ -55,10 +54,9 @@ public class ProductController {
             return ResponseEntity.badRequest().body(errors);
         }
         try {
-            productService.save(productRequest); // Gọi phương thức lưu sản phẩm
+            productService.save(productRequest);
             return new ResponseEntity<>("Product added successfully", HttpStatus.CREATED);
         } catch (ConstraintViolationException e) {
-            // Xử lý ngoại lệ và trích xuất thông báo lỗi từ ràng buộc kiểm tra hợp lệ
             Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
             List<String> errorMessages = new ArrayList<>();
             for (ConstraintViolation<?> violation : violations) {
@@ -73,7 +71,6 @@ public class ProductController {
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long productId,@Valid
             @RequestBody ProductUpdateRequest productRequest) {
-
         return new ResponseEntity<>(productService.updateProduct(productRequest, productId), HttpStatus.OK);
     }
 

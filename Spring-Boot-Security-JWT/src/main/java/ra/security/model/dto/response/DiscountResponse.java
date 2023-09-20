@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ra.security.model.domain.Orders;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,11 +24,13 @@ public class DiscountResponse {
     private String name;
     private String description;
     private int stock;
-    private int promotion;
+
+    private Integer promotion_price;
+    private Integer require_price;
+
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date startDate;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date endDate;
 
-    private List<Orders> orders = new ArrayList<>();
 }

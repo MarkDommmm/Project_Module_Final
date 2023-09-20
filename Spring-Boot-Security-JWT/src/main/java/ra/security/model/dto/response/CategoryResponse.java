@@ -23,6 +23,6 @@ public class CategoryResponse {
     private String name;
 
 
-    private Set<Product> products = new HashSet<>();
+
 
 }

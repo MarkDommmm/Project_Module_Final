@@ -68,14 +68,14 @@ public class ShipmentService implements IGenericService<ShipmentResponse, Shipme
         return shipmentMapper.toResponse(shipmentRepository.save(shipmentMapper.toEntity(shipmentRequest)));
     }
 
-    public ShipmentResponse add(ShipmentRequest shipmentRequest, Object users) throws CustomException, LoginException {
+    public ShipmentResponse add(ShipmentRequest shipmentRequest, Object username) throws CustomException, LoginException {
         if (shipmentRepository.existsByAddress(shipmentRequest.getAddress())) {
             throw new CustomException("Shipment already exists");
         }
-        if (users == null) {
+        if (username == null) {
             throw new LoginException("Please login!!!");
         }
-        Optional<Users> u = userService.findByUserName(String.valueOf(users));
+        Optional<Users> u = userService.findByUserName(String.valueOf(username));
         ShipmentRequest request = ShipmentRequest.builder()
                 .user(u.get())
                 .email(shipmentRequest.getEmail())

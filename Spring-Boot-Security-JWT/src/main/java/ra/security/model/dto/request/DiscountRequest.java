@@ -30,9 +30,15 @@ public class DiscountRequest {
     @NotNull(message = "Discount stock cannot be empty!!!")
     @Min(value = 1, message = "Discount stock must be greater than or equal to 1!!!")
     private Integer stock;
+
     @NotNull(message = "Promotion  cannot be empty!!!")
     @Min(value = 1, message = "Promotion   must be greater than or equal to 1!!!")
-    private Integer promotion;
+    private Integer promotion_price;
+
+    @NotNull(message = "Promotion  cannot be empty!!!")
+    @Min(value = 1, message = "Promotion   must be greater than or equal to 1!!!")
+    private Integer require_price;
+
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date startDate;
     @JsonFormat(pattern = "dd/MM/yyyy")

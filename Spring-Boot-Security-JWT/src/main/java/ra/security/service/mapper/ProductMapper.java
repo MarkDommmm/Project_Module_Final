@@ -16,6 +16,7 @@ import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IBrandRepository;
 import ra.security.repository.ICategoryRepository;
 import ra.security.repository.IColorRepository;
+import ra.security.repository.IDiscountRepsository;
 import ra.security.service.IGenericMapper;
 import ra.security.service.upload_aws.StorageService;
 
@@ -37,16 +38,16 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
     private IColorRepository colorRepository;
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private IDiscountRepsository discountRepsository;
 
     @Override
     public Product toEntity(ProductRequest productRequest) {
-        // Lấy danh sách danh mục từ danh sách ID
+
         List<Category> categories = categoryRepository.findAllByIdIn(productRequest.getCategory());
+        List<Discount> discounts = discountRepsository.findAllByIdIn(productRequest.getDiscount());
 
-        // Lấy danh sách màu sắc từ danh sách ID
-        List<Color> colors = colorRepository.findAllByIdIn(productRequest.getColors());
-
-        // Lấy thương hiệu dựa trên ID
+        Optional<Color> color = colorRepository.findById(productRequest.getColors());
         Optional<Brand> b = brandRepository.findById(productRequest.getBrandId());
 
         List<String> list = new ArrayList<>();
@@ -67,21 +68,21 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
                 .category(categories)
                 .stock(productRequest.getStock())
                 .images(imageProducts)
-                .colors(colors)
+                .discount(discounts)
+                .colors(color.orElse(null))
                 .created_at(new Date())
                 .status(true)
                 .build();
 
         return product;
     }
+
     public Product toEntity(ProductUpdateRequest productRequest) {
-        // Lấy danh sách danh mục từ danh sách ID
+
         List<Category> categories = categoryRepository.findAllByIdIn(productRequest.getCategory());
 
-        // Lấy danh sách màu sắc từ danh sách ID
-        List<Color> colors = colorRepository.findAllByIdIn(productRequest.getColors());
+        Optional<Color> color = colorRepository.findById(productRequest.getColors());
 
-        // Lấy thương hiệu dựa trên ID
         Optional<Brand> b = brandRepository.findById(productRequest.getBrandId());
 
 
@@ -93,24 +94,26 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
                 .brand(b.orElse(null))  // Sử dụng orElse để tránh lỗi nếu không tìm thấy thương hiệu
                 .category(categories)
                 .stock(productRequest.getStock())
-                .colors(colors)
+                .colors(color.orElse(null))
                 .created_at(new Date())
                 .status(true)
                 .build();
 
         return product;
     }
+
     @Override
     public ProductResponse toResponse(Product products) {
         List<String> categories = products.getCategory().stream()
                 .map(Category::getName).collect(Collectors.toList());
-
+        Optional<Color> color = colorRepository.findById(products.getColors().getId());
         Optional<Brand> b = brandRepository.findById(products.getBrand().getId());
 //        String brand = String.valueOf(b.get().getName());
 
-        List<String> color = products.getColors().stream()
-                .map(Color::getName).collect(Collectors.toList());
-
+//        List<String> color = products.getColors().stream()
+//                .map(Color::getName).collect(Collectors.toList());
+        List<String> discount = products.getDiscount().stream()
+                .map(Discount::getName).collect(Collectors.toList());
 //        String c = String.join(", ", color);
 
         List<String> images = products.getImages().stream()
@@ -127,7 +130,7 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
                 .category(categories)
                 .brand(b)
                 .colors(color)
-                .discount_id(products.getDiscount_id())
+                .discount(discount)
                 .created_at(products.getCreated_at())
                 .status(products.isStatus())
                 .build();

@@ -12,11 +12,28 @@ public class DiscountMapper  implements IGenericMapper<Discount, DiscountRequest
 
     @Override
     public Discount toEntity(DiscountRequest discountRequest) {
-        return null;
+        return Discount.builder()
+                .name(discountRequest.getName())
+                .description(discountRequest.getDescription())
+                .startDate(discountRequest.getStartDate())
+                .endDate(discountRequest.getEndDate())
+                .require_price(discountRequest.getRequire_price())
+                .promotion_price(discountRequest.getPromotion_price())
+                .stock(discountRequest.getStock())
+                .build();
     }
 
     @Override
     public DiscountResponse toResponse(Discount discount) {
-        return null;
+        return DiscountResponse.builder()
+                .id(discount.getId())
+                .name(discount.getName())
+                .description(discount.getDescription())
+                .startDate(discount.getStartDate())
+                .endDate(discount.getEndDate())
+                .require_price(discount.getRequire_price())
+                .promotion_price(discount.getPromotion_price())
+                .stock(discount.getStock())
+                .build();
     }
 }

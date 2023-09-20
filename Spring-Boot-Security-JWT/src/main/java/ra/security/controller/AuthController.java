@@ -10,6 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ra.security.exception.CustomException;
 import ra.security.exception.LoginException;
 import ra.security.model.dto.request.FormSignInDto;
 import ra.security.model.dto.request.FormSignUpDto;
@@ -18,15 +19,17 @@ import ra.security.security.jwt.JwtProvider;
 import ra.security.security.user_principle.UserPrinciple;
 import ra.security.service.IUserService;
 import ra.security.service.impl.MailService;
+import ra.security.service.impl.UserService;
 
 
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v4/public")
+@RequestMapping("/api/v4")
 @CrossOrigin("*")
 
 public class AuthController {
@@ -35,12 +38,13 @@ public class AuthController {
     @Autowired
     private JwtProvider jwtProvider;
     @Autowired
-    private IUserService userService;
+    private IUserService iuserService;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private UserService userService;
 
-
-    @PostMapping("/sign-in")
+    @PostMapping("/public/sign-in")
     public ResponseEntity<JwtResponse> signin(@RequestBody FormSignInDto formSignInDto, HttpSession session) throws LoginException {
         Authentication authentication = null;
 
@@ -56,7 +60,11 @@ public class AuthController {
             throw new LoginException("Username or password is incorrect");
         }
 
+
         UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
+        if (!userPrinciple.isStatus()){
+            throw  new LoginException("User BLOCKKKKKKKKKK");
+        }
         String token = jwtProvider.generateToken(userPrinciple);
         // lấy ra user principle
         List<String> roles = userPrinciple.getAuthorities().stream()
@@ -70,12 +78,16 @@ public class AuthController {
                 .status(userPrinciple.isStatus()).build());
     }
 
-    @PostMapping("/sign-up")
+    @PostMapping("/public/sign-up")
     private ResponseEntity<?> signup(@Validated @RequestBody FormSignUpDto formSignUpDto) {
         mailService.sendMail(formSignUpDto.getEmail(), "HH STORE ALERT", "Welcome to HH STORE \n Register successfully");
-        userService.save(formSignUpDto);
+        iuserService.save(formSignUpDto);
         return new ResponseEntity<>("Congratulations register successfully", HttpStatus.CREATED);
     }
 
+    @GetMapping("/admin/users/changeStatus/{id}")
+    public ResponseEntity<?> changeStatus(@PathVariable Long id) throws CustomException {
+        return new ResponseEntity<>(userService.changeStatus(id), HttpStatus.OK);
+    }
 
 }

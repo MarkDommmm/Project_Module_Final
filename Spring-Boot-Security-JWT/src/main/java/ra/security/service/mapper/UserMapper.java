@@ -1,10 +1,11 @@
 package ra.security.service.mapper;
 
+import org.springframework.stereotype.Component;
 import ra.security.model.domain.Users;
 import ra.security.model.dto.request.UserRequest;
 import ra.security.model.dto.response.UserResponse;
 import ra.security.service.IGenericMapper;
-
+@Component
 public class UserMapper implements IGenericMapper<Users, UserRequest, UserResponse> {
     @Override
     public Users toEntity(UserRequest userRequest) {

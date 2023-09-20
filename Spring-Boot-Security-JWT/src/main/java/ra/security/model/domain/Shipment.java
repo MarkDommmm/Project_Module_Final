@@ -29,6 +29,7 @@ public class Shipment {
     private String email;
 
     private Date create_at;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private Users user;

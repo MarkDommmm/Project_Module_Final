@@ -17,7 +17,7 @@ public class ProductResponse {
 
     private Long id;
 
-    private Long discount_id;
+    private List<String> discount;
 
     private String name;
 
@@ -43,7 +43,7 @@ public class ProductResponse {
     private Optional<Brand> brand;
 
 
-    private List<String> colors;
+    private  Optional<Color> colors;
 
     private boolean status;
 }

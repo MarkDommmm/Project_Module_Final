@@ -17,15 +17,13 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/v4/auth/order")
+@RequestMapping("/api/v4")
 @CrossOrigin("*")
 public class OrderController {
     @Autowired
     private OrderService orderService;
-    @Autowired
-    private CartService cartService;
 
-    @PostMapping("/buy/shipment/{shipmentId}/payment/{paymentId}")
+    @PostMapping("/auth/order/buy/shipment/{shipmentId}/payment/{paymentId}/discount/{discountName}")
     public ResponseEntity<OrdersResponse> order(HttpSession session,
                                                 @PathVariable Long paymentId,
                                                 @PathVariable Long shipmentId)
@@ -33,14 +31,18 @@ public class OrderController {
         return new ResponseEntity<>(orderService.order(session.getAttribute("CurrentUser"), shipmentId, paymentId), HttpStatus.OK);
     }
 
-    @PutMapping("/changeDelivery/{orderId}")
-    public ResponseEntity<OrdersResponse> changeDelivery(@PathVariable Long orderId,
-                                                         @RequestBody EDelivered status) throws CustomException {
-        return new ResponseEntity<>(orderService.changeDelivery(status, orderId), HttpStatus.OK);
-    }
 
-    @GetMapping("/getAll")
+    @GetMapping("/auth/order/getAll")
     public ResponseEntity<List<OrdersResponse>> getOrder(HttpSession session) {
         return new ResponseEntity<>(orderService.showOrders(session.getAttribute("CurrentUser")), HttpStatus.OK);
     }
+    @PutMapping("/admin/order/change_delivery/{orderId}")
+    public ResponseEntity<OrdersResponse> changeDeliveryOrder(@PathVariable Long orderId) throws CustomException {
+        return new ResponseEntity<>(orderService.changeDelivery(orderId), HttpStatus.OK);
+    }
+    @PutMapping("/admin/order/confirmOrder/{orderId}")
+    public ResponseEntity<OrdersResponse> ConfirmOrder(@PathVariable Long orderId,@RequestParam("type")String type) throws CustomException {
+        return new ResponseEntity<>(orderService.confirmOrder(orderId,type), HttpStatus.OK);
+    }
+
 }

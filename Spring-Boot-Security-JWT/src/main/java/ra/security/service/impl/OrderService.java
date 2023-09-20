@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import ra.security.exception.*;
 import ra.security.model.domain.*;
 import ra.security.model.dto.request.OrdersRequest;
-import ra.security.model.dto.response.CartItemResponse;
-import ra.security.model.dto.response.OrdersResponse;
-import ra.security.model.dto.response.ProductResponse;
-import ra.security.model.dto.response.ShipmentResponse;
+import ra.security.model.dto.response.*;
 import ra.security.repository.*;
 import ra.security.service.IGenericService;
 import ra.security.service.mapper.OrderDetailsMapper;
@@ -42,6 +39,10 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
     private IShipmentRepository shipmentRepository;
     @Autowired
     private IPaymentRepository paymentRepository;
+    @Autowired
+    private DiscountService discountService;
+    @Autowired
+    private IDiscountRepsository discountRepsository;
 
     @Override
     public List<OrdersResponse> findAll() {
@@ -84,57 +85,50 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
         return orderMapper.toResponse(orderRepository.save(o));
     }
 
-    public OrdersResponse changeDelivery(EDelivered newDelivery, Long orderId) throws CustomException {
-        Orders orders = findOrderById(orderId);
-        EDelivered currentDelivery = orders.getEDelivered();
-        System.out.println(newDelivery + "+++++++++++++++++++++++++++++++");
-        if (newDelivery == currentDelivery) {
-            throw new CustomException("You are already in the " + currentDelivery + " status");
+    public OrdersResponse changeDelivery(Long id) throws CustomException {
+        Orders orders = findOrderById(id);
+        EDelivered type = orders.getEDelivered();
+        if (!orders.isStatus()) {
+            throw new CustomException("Order cannot be edited anymore!! ");
         }
-
-        switch (currentDelivery) {
-            case PENDING:
-                if (newDelivery == EDelivered.DELIVERY || newDelivery == EDelivered.SUCCESS) {
-                    throw new CustomException("You are in the status of waiting for confirmation");
-                }
-                break;
-            case PREPARE:
-                if (newDelivery == EDelivered.PENDING || newDelivery == EDelivered.SUCCESS) {
-                    throw new CustomException("You are in preparation mode");
-                }
-                break;
-            case DELIVERY:
-                if (newDelivery == EDelivered.PENDING || newDelivery == EDelivered.PREPARE) {
-                    throw new CustomException("You are in the delivery status");
-                }
-                break;
-            case SUCCESS:
-                if (newDelivery == EDelivered.PENDING || newDelivery == EDelivered.PREPARE || newDelivery == EDelivered.DELIVERY) {
-                    throw new CustomException("You are in the successful delivery status");
-                }
-                break;
-            case CANCEL:
-                if (newDelivery != EDelivered.CANCEL) {
-                    throw new CustomException("You are in the order cancellation status");
-                }
-                break;
-            default:
-                throw new CustomException("Invalid delivery status");
+        if (type == EDelivered.PENDING) {
+            orders.setEDelivered(EDelivered.PREPARE);
         }
-
-        orders.setEDelivered(newDelivery);
+        if (type == EDelivered.PREPARE) {
+            orders.setEDelivered(EDelivered.DELIVERY);
+        }
         return orderMapper.toResponse(orderRepository.save(orders));
     }
 
+    public OrdersResponse confirmOrder(Long id, String type) throws CustomException {
+        Orders orders = findOrderById(id);
+        EDelivered eDelivered = findDeliveryByInput(type);
+        if (!orders.isStatus()) {
+            throw new CustomException("Order cannot be edited anymore!! ");
+        }
+        if (eDelivered == EDelivered.SUCCESS) {
+            orders.setEDelivered(eDelivered);
+            orders.setStatus(false);
+        }
+        if (eDelivered == EDelivered.CANCEL) {
+            List<OrderDetails> orderDetails = orderDetailRepository.findAll();
+            for (OrderDetails p : orderDetails) {
+                Optional<Product> productResponse = productRepository.findById(p.getProducts().getId());
+                if (p.getOrders().getId().equals(orders.getId())) {
+                    if (p.getProducts().getId().equals(productResponse.get().getId())) {
+                        productResponse.get().setStock(productResponse.get().getStock() + p.getQuantity());
+                    }
+                }
+
+            }
+            orders.setEDelivered(eDelivered);
+            orders.setStatus(false);
+        }
+        return orderMapper.toResponse(orderRepository.save(orders));
+    }
 
     public EDelivered findDeliveryByInput(String typeDelivery) throws CustomException {
         switch (typeDelivery) {
-            case "pending":
-                return EDelivered.PENDING;
-            case "prepare":
-                return EDelivered.PREPARE;
-            case "delivery":
-                return EDelivered.DELIVERY;
             case "success":
                 return EDelivered.SUCCESS;
             case "cancel":
@@ -143,6 +137,7 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
                 throw new CustomException("delivery not found");
         }
     }
+
 
     public Users findUserById(Long userId) throws CustomException {
         Optional<Users> u = userRepository.findById(userId);
@@ -164,12 +159,14 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
         return p.orElseThrow(() -> new CustomException("Payment not found"));
     }
 
-    public OrdersResponse order(Object user, Long shipmentId, Long paymentId) throws CustomException {
+    public OrdersResponse order(Object user, Long shipmentId, Long paymentId ) throws CustomException {
         Optional<Users> u = userRepository.findByUsername(String.valueOf(user));
         Shipment shipment = findShipmentById(shipmentId);
-        List<ShipmentResponse> check =  shipmentService.findShipmentsByUser(user);
+        List<ShipmentResponse> check = shipmentService.findShipmentsByUser(user);
+
+
         if (check == null) {
-            throw  new CustomException("Shipment not found");
+            throw new CustomException("Shipment not found");
         }
         Payment payment = findPaymentById(paymentId);
         List<CartItemResponse> cartItemList = cartService.findAll();
@@ -187,6 +184,7 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
                 .users(u.get())
                 .shipment(shipment)
                 .payment(payment)
+//                .discount()
                 .total_price(totalPrice)
                 .status(true)
                 .build();
@@ -206,8 +204,8 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
             orderDetailRepository.save(orderDetails);
         }
         cartService.clearCartList();
-        u.get().getOrders().add(order);
-        userRepository.save(u.get());
+//        u.get().getOrders().add(order);
+//        userRepository.save(u.get());
         return orderMapper.toResponse(order);
     }
 

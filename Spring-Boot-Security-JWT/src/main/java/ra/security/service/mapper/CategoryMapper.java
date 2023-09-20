@@ -20,7 +20,6 @@ public class CategoryMapper implements IGenericMapper<Category, CategoryRequest,
         return CategoryResponse.builder()
                 .id(category.getId())
                 .name(category.getName())
-                .products(category.getProducts())
                 .build();
     }
 }

@@ -3,16 +3,20 @@ package ra.security.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ra.security.exception.CustomException;
 import ra.security.model.domain.*;
 import ra.security.model.dto.request.FormSignUpDto;
 import ra.security.model.dto.response.OrdersResponse;
 import ra.security.model.dto.response.ProductResponse;
+import ra.security.model.dto.response.UserResponse;
 import ra.security.repository.IOrderRepository;
 import ra.security.repository.IUserRepository;
 import ra.security.service.IRoleService;
 import ra.security.service.IUserService;
+import ra.security.service.mapper.UserMapper;
 
 import javax.persistence.EntityExistsException;
+import java.security.Principal;
 import java.util.*;
 
 @Service
@@ -21,7 +25,8 @@ public class UserService implements IUserService {
     private IUserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public List<Users> findAll() {
@@ -46,7 +51,7 @@ public class UserService implements IUserService {
         if (userRepository.existsByUsername(form.getUsername())) {
             throw new EntityExistsException("Username is exists");
         }
-        if (userRepository.existsByEmail(form.getEmail())){
+        if (userRepository.existsByEmail(form.getEmail())) {
             throw new EntityExistsException("Email is exists");
         }
         // lấy ra danh sách các quyền và chuyển thành đối tượng Users
@@ -79,6 +84,11 @@ public class UserService implements IUserService {
         return userRepository.save(users);
     }
 
+    public UserResponse changeStatus(Long idUser) throws CustomException {
+        Optional<Users> users = userRepository.findById(idUser);
+        users.get().setStatus(!users.get().isStatus());
+        return userMapper.toResponse(userRepository.save(users.get()));
+    }
 
 
 }

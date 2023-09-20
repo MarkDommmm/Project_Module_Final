@@ -23,7 +23,8 @@ public class Discount {
     private String name;
     private String description;
     private int stock;
-    private int promotion;
+    private int promotion_price;
+    private int require_price;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date startDate;
     @JsonFormat(pattern = "dd/MM/yyyy")
@@ -31,4 +32,7 @@ public class Discount {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY,mappedBy = "discount")
     private List<Orders> orders = new ArrayList<>();
+
+
+
 }
