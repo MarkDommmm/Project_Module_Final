@@ -23,12 +23,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserPrinciple implements UserDetails {
     private Long id;
-    private String name;
+//    private String name;
 
     private String username;
     @JsonIgnore
     private String password;
     private boolean status;
+    private  String email;
     private Collection<? extends GrantedAuthority> authorities;
 
     public static UserPrinciple build(Users user){
@@ -37,8 +38,9 @@ public class UserPrinciple implements UserDetails {
         ).collect(Collectors.toList());
         return UserPrinciple.builder()
                 .id(user.getId())
-                .name(user.getName())
+//                .name(user.getName())
                 .username(user.getUsername())
+                .email(user.getEmail())
                 .status(user.isStatus())
                 .password(user.getPassword())
                 .authorities(list).build();

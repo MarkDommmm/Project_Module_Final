@@ -21,9 +21,9 @@ public class OrdersResponse {
 
     private Long id;
 
-    private Long payment;
+    private String payment;
 
-    private Discount discount;
+    private String discount;
     private String eDelivered;
     private double total_price;
 

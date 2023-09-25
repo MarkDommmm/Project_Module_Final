@@ -41,8 +41,7 @@ public class ProductRequest {
     @NotNull(message = "Brand cannot be empty!!!")
     private Long brandId;
 
-    @NoNullOrEmpty(message = "Discount cannot be null or empty")
-    private List<Long> discount;
+
     @NoNullOrEmpty(message = "Category cannot be null or empty")
     private List<Long> category;
 

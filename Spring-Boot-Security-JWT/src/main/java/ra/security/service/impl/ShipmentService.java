@@ -69,9 +69,6 @@ public class ShipmentService implements IGenericService<ShipmentResponse, Shipme
     }
 
     public ShipmentResponse add(ShipmentRequest shipmentRequest, Object username) throws CustomException, LoginException {
-        if (shipmentRepository.existsByAddress(shipmentRequest.getAddress())) {
-            throw new CustomException("Shipment already exists");
-        }
         if (username == null) {
             throw new LoginException("Please login!!!");
         }

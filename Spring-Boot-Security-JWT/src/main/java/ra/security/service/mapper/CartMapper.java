@@ -34,7 +34,6 @@ public class CartMapper implements IGenericMapper<CartItem, CartItemRequest, Car
                 .img(p.getMain_image())
                 .quantity(cartItem.getQuantity())
                 .price(cartItem.getProduct().getPrice() * cartItem.getQuantity())
-                .status(cartItem.isStatus())
-                .build();
+                 .build();
     }
 }

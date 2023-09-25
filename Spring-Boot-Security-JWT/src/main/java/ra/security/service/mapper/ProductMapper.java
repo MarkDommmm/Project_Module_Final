@@ -38,14 +38,12 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
     private IColorRepository colorRepository;
     @Autowired
     private StorageService storageService;
-    @Autowired
-    private IDiscountRepsository discountRepsository;
 
     @Override
     public Product toEntity(ProductRequest productRequest) {
 
         List<Category> categories = categoryRepository.findAllByIdIn(productRequest.getCategory());
-        List<Discount> discounts = discountRepsository.findAllByIdIn(productRequest.getDiscount());
+//        List<Discount> discounts = discountRepsository.findAllByIdIn(productRequest.getDiscount());
 
         Optional<Color> color = colorRepository.findById(productRequest.getColors());
         Optional<Brand> b = brandRepository.findById(productRequest.getBrandId());
@@ -68,8 +66,7 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
                 .category(categories)
                 .stock(productRequest.getStock())
                 .images(imageProducts)
-                .discount(discounts)
-                .colors(color.orElse(null))
+                 .colors(color.orElse(null))
                 .created_at(new Date())
                 .status(true)
                 .build();
@@ -108,13 +105,6 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
                 .map(Category::getName).collect(Collectors.toList());
         Optional<Color> color = colorRepository.findById(products.getColors().getId());
         Optional<Brand> b = brandRepository.findById(products.getBrand().getId());
-//        String brand = String.valueOf(b.get().getName());
-
-//        List<String> color = products.getColors().stream()
-//                .map(Color::getName).collect(Collectors.toList());
-        List<String> discount = products.getDiscount().stream()
-                .map(Discount::getName).collect(Collectors.toList());
-//        String c = String.join(", ", color);
 
         List<String> images = products.getImages().stream()
                 .map(ImageProduct::getImage).collect(Collectors.toList());
@@ -130,8 +120,7 @@ public class ProductMapper implements IGenericMapper<Product, ProductRequest, Pr
                 .category(categories)
                 .brand(b)
                 .colors(color)
-                .discount(discount)
-                .created_at(products.getCreated_at())
+                 .created_at(products.getCreated_at())
                 .status(products.isStatus())
                 .build();
     }

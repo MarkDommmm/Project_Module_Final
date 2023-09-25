@@ -89,31 +89,20 @@ public class ProductService implements IGenericService<ProductResponse, ProductR
         return productMapper.toResponse(productRepository.save(p));
     }
 
-    public ProductResponse updateProduct(ProductUpdateRequest productUpdateRequest, Long id) {
+    public void updateProduct(ProductUpdateRequest productUpdateRequest, Long id) throws CustomException {
         Product p = productMapper.toEntity(productUpdateRequest);
+        Product product = findProductById(id);
         p.setId(id);
-        List<Discount> discounts = discountRepsository.findAllByIdIn(productUpdateRequest.getDiscounts());
-        List<String> categories = p.getCategory().stream()
-                .map(Category::getName).collect(Collectors.toList());
-        Optional<Brand> b = brandRepository.findById(p.getBrand().getId());
-        Optional<Color> c = colorRepository.findById(p.getColors().getId());
-        ProductResponse productResponse = ProductResponse.builder()
-                .id(p.getId())
-                .name(p.getName())
-                .price(p.getPrice())
-                .description(p.getDescription())
-                .stock(p.getStock())
-                .category(categories)
-                .brand(b)
-                .colors(c)
-                .discount(discounts.stream().map(Discount::getName).collect(Collectors.toList()))
-                .created_at(p.getCreated_at())
-                .status(p.isStatus())
-                .build();
-            p.setDiscount(discounts);
+        String url = null;
+        for (ImageProduct img:product.getImages()) {
+            url = img.getImage();
+            break;
+        }
+        p.setMain_image(url);
+
+
         productRepository.save(p);
-        return productResponse;
-    }
+     }
 
     @Override
     public ProductResponse delete(Long aLong) throws CustomException {

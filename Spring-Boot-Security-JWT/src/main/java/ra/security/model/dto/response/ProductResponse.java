@@ -17,7 +17,7 @@ public class ProductResponse {
 
     private Long id;
 
-    private List<String> discount;
+
 
     private String name;
 
@@ -34,7 +34,7 @@ public class ProductResponse {
     private Date created_at;
 
 
-     private List<OrderDetails> orderDetails;
+//     private List<OrderDetails> orderDetails;
 
 
     private List<String> category = new ArrayList<>();

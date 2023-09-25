@@ -28,7 +28,7 @@ public class DiscountController {
     private CartService cartService;
 
     @GetMapping("/admin/discounts/getAll")
-    public ResponseEntity<?> getDiscounts() {
+    public ResponseEntity<List<DiscountResponse>> getDiscounts() {
         return new ResponseEntity<>(discountService.findAll(), HttpStatus.OK);
     }
 
@@ -53,13 +53,5 @@ public class DiscountController {
         return new ResponseEntity<>(discountService.findById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/auth/discount/check")
-    public ResponseEntity<List<DiscountResponse>> checkDiscountInCart() throws CustomException {
-        return new ResponseEntity<>(cartService.getAllDiscounts(), HttpStatus.OK);
-    }
-    @GetMapping("/auth/addDiscount")
-    public ResponseEntity<?> addDiscount(@RequestParam("addDiscount") List<Long> idDiscount) throws CustomException {
-        cartService.addDiscount(idDiscount);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+
 }

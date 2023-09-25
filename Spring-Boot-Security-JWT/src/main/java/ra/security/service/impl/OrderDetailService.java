@@ -25,24 +25,36 @@ public class OrderDetailService implements IGenericService<OrderDetailsResponse,
     @Override
     public List<OrderDetailsResponse> findAll() {
         return orderDetailRepository.findAll().stream()
-                .map(o -> orderMapper.toResponse(o)).collect(Collectors.toList());
+                .map(o -> {
+                    try {
+                        return orderMapper.toResponse(o);
+                    } catch (CustomException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.toList());
     }
 
     @Override
     public OrderDetailsResponse findById(Long aLong) throws  CustomException {
         Optional<OrderDetails> orderDetails = orderDetailRepository.findById(aLong);
 
-        return orderDetails.map(o -> orderMapper.toResponse(o)).orElseThrow(()->
+        return orderDetails.map(o -> {
+            try {
+                return orderMapper.toResponse(o);
+            } catch (CustomException e) {
+                throw new RuntimeException(e);
+            }
+        }).orElseThrow(()->
                 new CustomException("OrderDetails not found"));
     }
 
     @Override
-    public OrderDetailsResponse save(OrderDetailsRequest orderDetailsRequest) {
+    public OrderDetailsResponse save(OrderDetailsRequest orderDetailsRequest) throws CustomException {
         return orderMapper.toResponse(orderDetailRepository.save(orderMapper.toEntity(orderDetailsRequest)));
     }
 
     @Override
-    public OrderDetailsResponse update(OrderDetailsRequest orderDetailsRequest, Long id) {
+    public OrderDetailsResponse update(OrderDetailsRequest orderDetailsRequest, Long id) throws CustomException {
         OrderDetails orderDetails = orderMapper.toEntity(orderDetailsRequest);
         orderDetails.setId(id);
         return orderMapper.toResponse(orderDetailRepository.save(orderDetails));
@@ -52,4 +64,6 @@ public class OrderDetailService implements IGenericService<OrderDetailsResponse,
     public OrderDetailsResponse delete(Long aLong) {
         return null;
     }
+
+
 }

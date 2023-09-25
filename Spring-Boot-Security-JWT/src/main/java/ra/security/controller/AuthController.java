@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v4")
 @CrossOrigin("*")
-
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -39,8 +38,7 @@ public class AuthController {
     private JwtProvider jwtProvider;
     @Autowired
     private IUserService iuserService;
-    @Autowired
-    private MailService mailService;
+
     @Autowired
     private UserService userService;
 
@@ -62,8 +60,8 @@ public class AuthController {
 
 
         UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
-        if (!userPrinciple.isStatus()){
-            throw  new LoginException("User BLOCKKKKKKKKKK");
+        if (!userPrinciple.isStatus()) {
+            throw new LoginException("User BLOCKKKKKKKKKK");
         }
         String token = jwtProvider.generateToken(userPrinciple);
         // lấy ra user principle
@@ -71,8 +69,9 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         return ResponseEntity.ok(JwtResponse.builder()
                 .token(token)
-                .name(userPrinciple.getName())
+//                .name(userPrinciple.getName())
                 .username(userPrinciple.getUsername())
+                .email(userPrinciple.getEmail())
                 .roles(roles)
                 .type("Bearer")
                 .status(userPrinciple.isStatus()).build());
@@ -80,7 +79,7 @@ public class AuthController {
 
     @PostMapping("/public/sign-up")
     private ResponseEntity<?> signup(@Validated @RequestBody FormSignUpDto formSignUpDto) {
-        mailService.sendMail(formSignUpDto.getEmail(), "HH STORE ALERT", "Welcome to HH STORE \n Register successfully");
+
         iuserService.save(formSignUpDto);
         return new ResponseEntity<>("Congratulations register successfully", HttpStatus.CREATED);
     }

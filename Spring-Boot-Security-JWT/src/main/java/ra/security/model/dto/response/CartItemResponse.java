@@ -21,7 +21,7 @@ public class CartItemResponse {
     private int quantity;
 
     private double price;
-    private  boolean status = true;
+
 
 
 }

@@ -39,6 +39,7 @@ public class ProductController {
     public ResponseEntity<List<ProductResponse>> getProducts() {
         return new ResponseEntity<>(productService.findAllInUser(), HttpStatus.OK);
     }
+
     @GetMapping("/admin/products/getAll")
     public ResponseEntity<List<ProductResponse>> getProductsAdmin() {
         return new ResponseEntity<>(productService.findAll(), HttpStatus.OK);
@@ -68,10 +69,11 @@ public class ProductController {
 
 
     @PutMapping("/admin/products/update/{productId}")
-    public ResponseEntity<ProductResponse> updateProduct(
+    public ResponseEntity<String> updateProduct(
             @PathVariable Long productId,@Valid
-            @RequestBody ProductUpdateRequest productRequest) {
-        return new ResponseEntity<>(productService.updateProduct(productRequest, productId), HttpStatus.OK);
+            @RequestBody ProductUpdateRequest productRequest) throws CustomException {
+        productService.updateProduct(productRequest, productId);
+        return new ResponseEntity<>("Update success!!!", HttpStatus.OK);
     }
 
     @GetMapping("/admin/products/get/{id}")

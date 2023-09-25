@@ -21,8 +21,9 @@ public class OrderDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Orders orders;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Product products;

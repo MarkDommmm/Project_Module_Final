@@ -44,5 +44,4 @@ public class DiscountRequest {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date endDate;
 
-    private List<Orders> orders = new ArrayList<>();
 }

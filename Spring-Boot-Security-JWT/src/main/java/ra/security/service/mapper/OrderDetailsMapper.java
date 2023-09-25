@@ -2,14 +2,17 @@ package ra.security.service.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ra.security.exception.CustomException;
 import ra.security.model.domain.OrderDetails;
 import ra.security.model.domain.Orders;
 import ra.security.model.domain.Product;
 import ra.security.model.dto.request.OrderDetailsRequest;
 import ra.security.model.dto.response.OrderDetailsResponse;
+import ra.security.model.dto.response.ProductResponse;
 import ra.security.repository.IOrderRepository;
 import ra.security.repository.IProductRepository;
 import ra.security.service.IGenericMapper;
+import ra.security.service.impl.ProductService;
 
 import java.util.Optional;
 
@@ -19,6 +22,10 @@ public class OrderDetailsMapper implements IGenericMapper<OrderDetails, OrderDet
     private IOrderRepository orderRepository;
     @Autowired
     private IProductRepository productRepository;
+    @Autowired
+    private ProductMapper productMapper;
+    @Autowired
+    private ProductService productService;
 
     @Override
     public OrderDetails toEntity(OrderDetailsRequest orderDetailsRequest) {
@@ -33,15 +40,15 @@ public class OrderDetailsMapper implements IGenericMapper<OrderDetails, OrderDet
     }
 
     @Override
-    public OrderDetailsResponse toResponse(OrderDetails orderDetails) {
+    public OrderDetailsResponse toResponse(OrderDetails orderDetails) throws CustomException {
 
         return OrderDetailsResponse.builder()
                 .id(orderDetails.getId())
-                .orders(orderDetails.getOrders())
-                .created_at(orderDetails.getCreated_at())
                 .quantity(orderDetails.getQuantity())
-                .products(orderDetails.getProducts())
+                .productId(orderDetails.getProducts().getId())
                 .price(orderDetails.getPrice())
-                .build();
+                .orders(orderDetails.getOrders())
+                .created_at(orderDetails.getCreated_at()).build();
     }
+
 }

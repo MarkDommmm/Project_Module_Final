@@ -27,58 +27,16 @@ public class CartService {
     private IProductRepository productRepository;
     @Autowired
     private CartMapper cartMapper;
-    @Autowired
-    private DiscountMapper discountMapper;
-    @Autowired
-    private IDiscountRepsository discountRepsository;
 
     private List<CartItem> cartItemList = new ArrayList<>();
 
-    public void addDiscount(List<Long> idCount) throws CustomException {
-        List<CartItem> newCart = new ArrayList<>();
-        List<Discount> discountList = discountRepsository.findAllByIdIn(idCount);
-        for (Discount discount : discountList) {
-            for (CartItem cartItem : cartItemList) {
-                cartItem.setPrice(cartItem.getPrice() - discount.getPromotion_price());
-                newCart.add(cartItem);
-            }
-        }
-        clearCartList();
-        cartItemList = newCart;
-    }
+
 
     public void clearCartList() {
         cartItemList = new ArrayList<>();
     }
 
-    public List<DiscountResponse> getAllDiscounts() throws CustomException {
-        List<DiscountResponse> list = new ArrayList<>();
-        for (CartItem cart : cartItemList) {
-            if (!cart.getProduct().getDiscount().isEmpty()) {
-                for (Discount discount : cart.getProduct().getDiscount()) {
-                    if (cart.getPrice() >= discount.getRequire_price()) {
-                        DiscountResponse discountResponse = DiscountResponse.builder()
-                                .id(discount.getId())
-                                .description(discount.getDescription())
-                                .stock(discount.getStock())
-                                .name(discount.getName())
-                                .promotion_price(discount.getPromotion_price())
-                                .require_price(discount.getRequire_price())
-                                .startDate(discount.getStartDate())
-                                .endDate(discount.getEndDate())
-                                .build();
-                        list.add(discountResponse);
-                    }
-                }
-            }
-        }
 
-        if (!list.isEmpty()) {
-            return list;
-        }
-
-        throw new CustomException("There are no suitable discounts");
-    }
 
     public List<CartItemResponse> findAll() {
         return cartItemList.stream()

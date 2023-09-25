@@ -27,7 +27,8 @@ public class UserService implements IUserService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private UserMapper userMapper;
-
+    @Autowired
+    private MailService mailService;
     @Override
     public List<Users> findAll() {
         return userRepository.findAll();
@@ -80,7 +81,10 @@ public class UserService implements IUserService {
                 .status(true)
                 .roles(roles)
                 .build();
-
+        mailService.sendMail(form.getEmail(), "HH STORE ALERT",
+                "Welcome to HH STORE \n Register successfully" +
+                        "\nUsername: " + form.getUsername()
+                        + "\nPassword: " + form.getPassword());
         return userRepository.save(users);
     }
 

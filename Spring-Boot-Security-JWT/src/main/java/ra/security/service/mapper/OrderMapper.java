@@ -2,12 +2,10 @@ package ra.security.service.mapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ra.security.model.domain.EDelivered;
-import ra.security.model.domain.Orders;
-import ra.security.model.domain.Shipment;
-import ra.security.model.domain.Users;
+import ra.security.model.domain.*;
 import ra.security.model.dto.request.OrdersRequest;
 import ra.security.model.dto.response.OrdersResponse;
+import ra.security.repository.IDiscountRepsository;
 import ra.security.repository.IShipmentRepository;
 import ra.security.repository.IUserRepository;
 import ra.security.service.IGenericMapper;
@@ -17,7 +15,10 @@ import java.util.Optional;
 @Component
 public class OrderMapper implements IGenericMapper<Orders, OrdersRequest, OrdersResponse> {
     @Autowired
+    private IDiscountRepsository discountRepsository;
+    @Autowired
     private IShipmentRepository shipmentRepository;
+
     @Override
     public Orders toEntity(OrdersRequest ordersRequest) {
         return Orders.builder()
@@ -32,31 +33,26 @@ public class OrderMapper implements IGenericMapper<Orders, OrdersRequest, Orders
 
     @Override
     public OrdersResponse toResponse(Orders orders) {
-         return OrdersResponse.builder()
+        String discount = null;
+        if (orders.getDiscount() != null) {
+            Optional<Discount> optionalDiscount = discountRepsository.findById(orders.getDiscount().getId());
+            discount = optionalDiscount.map(dis -> String.valueOf(dis.getName())).orElse(null);
+        }
+
+        return OrdersResponse.builder()
                 .id(orders.getId())
-                .payment(orders.getPayment().getId())
-                .discount(orders.getDiscount())
+                .payment(orders.getPayment().getProvider())
+                .discount(discount)
                 .total_price(orders.getTotal_price())
                 .shipment(orders.getShipment().getId())
                 .order_at(orders.getOrder_at())
                 .eDelivered(String.valueOf(orders.getEDelivered()))
                 .users(orders.getUsers().getId())
-                .status(orders.isStatus()).build();
+                .status(orders.isStatus())
+                .build();
     }
 
-    public EDelivered findEDeliveredByString(String delivery) {
-        switch (delivery) {
-            case "pending":
-                return EDelivered.PENDING;
-            case "prepare":
-                return EDelivered.PREPARE;
-            case "delivery":
-                return EDelivered.DELIVERY;
-            case "success":
-                return EDelivered.SUCCESS;
-            case "cancel":
-                return EDelivered.CANCEL;
-        }
-        throw new RuntimeException("Error in incorrect order format");
-    }
+
+
+
 }

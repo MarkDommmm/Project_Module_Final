@@ -28,11 +28,7 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
     @Autowired
     private OrderDetailRepository orderDetailRepository;
     @Autowired
-    private OrderDetailsMapper orderDetailsMapper;
-    @Autowired
     private CartService cartService;
-    @Autowired
-    private ProductMapper productMapper;
     @Autowired
     private ShipmentService shipmentService;
     @Autowired
@@ -40,9 +36,33 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
     @Autowired
     private IPaymentRepository paymentRepository;
     @Autowired
-    private DiscountService discountService;
-    @Autowired
     private IDiscountRepsository discountRepsository;
+    @Autowired
+    private OrderDetailService orderDetailService;
+
+    public List<OrderDetailsDTO> getAllOrders() {
+        List<OrdersResponse> ordersResponse = findAll();
+        List<OrderDetailsResponse> orderDetailsResponses = orderDetailService.findAll();
+        List<OrderDetailsDTO> detailsDTOList = new ArrayList<>();
+
+        for (OrdersResponse o : ordersResponse) {
+            List<OrderDetailsResponse> orderDetailsDTOS = new ArrayList<>(); // Khởi tạo danh sách mới cho mỗi OrdersResponse
+
+            for (OrderDetailsResponse od : orderDetailsResponses) {
+                if (o.getId().equals(od.getOrders().getId())) {
+                    orderDetailsDTOS.add(od);
+                }
+            }
+
+            OrderDetailsDTO dto = OrderDetailsDTO.builder()
+                    .orders(o)
+                    .orderDetailsList(orderDetailsDTOS)
+                    .build();
+            detailsDTOList.add(dto);
+        }
+
+        return detailsDTOList;
+    }
 
     @Override
     public List<OrdersResponse> findAll() {
@@ -102,6 +122,7 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
 
     public OrdersResponse confirmOrder(Long id, String type) throws CustomException {
         Orders orders = findOrderById(id);
+
         EDelivered eDelivered = findDeliveryByInput(type);
         if (!orders.isStatus()) {
             throw new CustomException("Order cannot be edited anymore!! ");
@@ -159,12 +180,11 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
         return p.orElseThrow(() -> new CustomException("Payment not found"));
     }
 
-    public OrdersResponse order(Object user, Long shipmentId, Long paymentId ) throws CustomException {
+    public OrdersResponse order(Object user, Long shipmentId, Long paymentId, String discountName) throws CustomException {
         Optional<Users> u = userRepository.findByUsername(String.valueOf(user));
         Shipment shipment = findShipmentById(shipmentId);
         List<ShipmentResponse> check = shipmentService.findShipmentsByUser(user);
-
-
+        Discount discount = discountRepsository.findByName(discountName);
         if (check == null) {
             throw new CustomException("Shipment not found");
         }
@@ -177,25 +197,41 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
         double totalPrice = cartItemList.stream()
                 .mapToDouble(CartItemResponse::getPrice) // Chuyển đổi từ CartItemResponse thành giá tiền (double)
                 .sum();
-
-        Orders order = Orders.builder()
-                .order_at(new Date())
-                .eDelivered(EDelivered.PENDING)
-                .users(u.get())
-                .shipment(shipment)
-                .payment(payment)
-//                .discount()
-                .total_price(totalPrice)
-                .status(true)
-                .build();
-        orderRepository.save(order);
+        Orders orders = null;
+        if (discount != null) {
+            orders = Orders.builder()
+                    .order_at(new Date())
+                    .eDelivered(EDelivered.PENDING)
+                    .users(u.get())
+                    .shipment(shipment)
+                    .payment(payment)
+                    .discount(discount)
+                    .total_price(totalPrice - discount.getPromotion_price())
+                    .status(true)
+                    .build();
+            orderRepository.save(orders);
+            discount.setStock(discount.getStock() - 1);
+            discountRepsository.save(discount);
+        } else {
+            orders = Orders.builder()
+                    .order_at(new Date())
+                    .eDelivered(EDelivered.PENDING)
+                    .users(u.get())
+                    .shipment(shipment)
+                    .payment(payment)
+                    .discount(null)
+                    .total_price(totalPrice)
+                    .status(true)
+                    .build();
+            orderRepository.save(orders);
+        }
 
         for (CartItemResponse p : cartItemList) {
             Product product = findProductById(p.getIdProduct());
             product.setStock(product.getStock() - p.getQuantity());
             productRepository.save(product);
             OrderDetails orderDetails = OrderDetails.builder()
-                    .orders(order)
+                    .orders(orders)
                     .created_at(new Date())
                     .quantity(p.getQuantity())
                     .products(product)
@@ -204,9 +240,7 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
             orderDetailRepository.save(orderDetails);
         }
         cartService.clearCartList();
-//        u.get().getOrders().add(order);
-//        userRepository.save(u.get());
-        return orderMapper.toResponse(order);
+        return orderMapper.toResponse(orders);
     }
 
 
@@ -218,6 +252,10 @@ public class OrderService implements IGenericService<OrdersResponse, OrdersReque
                 orders.add(o);
             }
         }
+
         return orders;
     }
+
+//
+
 }

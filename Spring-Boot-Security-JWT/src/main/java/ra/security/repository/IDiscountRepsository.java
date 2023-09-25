@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface IDiscountRepsository extends JpaRepository<Discount, Long> {
     boolean existsByName(String discount);
-    List<Discount> findAllByIdIn(List<Long> ids);
+
+
+    Discount findByName(String nameDiscount);
 }

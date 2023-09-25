@@ -15,34 +15,34 @@ import ra.security.service.impl.PaymentService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v4/admin/payments")
+@RequestMapping("/api/v4")
 @CrossOrigin("*")
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
-    @GetMapping("/getAll")
-    public ResponseEntity<List<PaymentResponse>> getBrands() {
+    @GetMapping("/auth/payments/getAll")
+    public ResponseEntity<List<PaymentResponse>> getPayments() {
         return new ResponseEntity<>(paymentService.findAll(), HttpStatus.OK);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<PaymentResponse> addBrand(@RequestBody PaymentRequest paymentRequest) {
+    @PostMapping("/admin/payments/add")
+    public ResponseEntity<PaymentResponse> addPayment(@RequestBody PaymentRequest paymentRequest) {
         return new ResponseEntity<>(paymentService.save(paymentRequest), HttpStatus.CREATED);
     }
 
-    @GetMapping("/get/{id}")
-    public ResponseEntity<PaymentResponse> getBrand(@PathVariable Long id) throws CustomException {
+    @GetMapping("/admin/payments/get/{id}")
+    public ResponseEntity<PaymentResponse> getPayment(@PathVariable Long id) throws CustomException {
         return new ResponseEntity<>(paymentService.findById(id), HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<PaymentResponse> updateBrand(@PathVariable Long id, @RequestBody PaymentRequest paymentRequest) {
+    @PutMapping("/admin/payments/update/{id}")
+    public ResponseEntity<PaymentResponse> updatePayment(@PathVariable Long id, @RequestBody PaymentRequest paymentRequest) {
         return new ResponseEntity<>(paymentService.update(paymentRequest, id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<PaymentResponse> deleteBrand(@PathVariable Long id) throws CustomException {
+    @DeleteMapping("/admin/payments/delete/{id}")
+    public ResponseEntity<PaymentResponse> deletePayment(@PathVariable Long id) throws CustomException {
         return new ResponseEntity<>(paymentService.delete(id), HttpStatus.OK);
     }
 }

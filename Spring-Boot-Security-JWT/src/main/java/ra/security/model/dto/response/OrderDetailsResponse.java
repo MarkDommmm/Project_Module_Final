@@ -1,6 +1,7 @@
 package ra.security.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,20 +21,20 @@ public class OrderDetailsResponse {
 
     private Long id;
 
-
-    private Orders orders;
-
-
-    private Product products;
-
+    // Chỉ ánh xạ một số thuộc tính cần thiết từ OrderDetails
     private int quantity;
-
     private double price;
 
     @JsonFormat(pattern = "dd/MM/yyyy")
     private Date created_at;
 
-    @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date modified_at;
 
+
+    // Sử dụng @JsonIgnore để loại bỏ mối quan hệ đệ quy
+    @JsonIgnore
+    private Orders orders;
+
+    // Ánh xạ ID của sản phẩm
+    private Long productId;
 }
+

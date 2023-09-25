@@ -52,7 +52,6 @@ public class ProductUpdateRequest {
 	@NotNull(message = "Brand cannot be empty!!!")
 	private Long colors;
 
-	@NoNullOrEmpty(message = "Discount cannot be null or empty")
-	private List<Long> discounts;
+
 	private boolean status;
 }
